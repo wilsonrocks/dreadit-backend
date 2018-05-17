@@ -8,14 +8,14 @@ function getID (collection, key, value) {
     return answer ? answer._id : null;
 }
 
-async function init () {
-    await mongoose.connect('mongodb://localhost/northcodersNews');
+async function seedDatabase (tag) {
+    await mongoose.connect(`mongodb://localhost/northcoders_news_${tag}`);
     await mongoose.connection.dropDatabase();
 
-    const users = await models.User.insertMany(require('./devData/users.json'));
-    const topics = await models.Topic.insertMany(require('./devData/topics.json'));
+    const users = await models.User.insertMany(require(`./${tag}Data/users.json`));
+    const topics = await models.Topic.insertMany(require(`./${tag}Data/topics.json`));
 
-    const rawArticles = require('./devData/articles.json');
+    const rawArticles = require(`./${tag}Data/articles.json`);
     let articles = rawArticles.map(function(obj) {
         return {...obj,
             created_by: getID(users, 'username', obj.created_by),
@@ -24,7 +24,7 @@ async function init () {
     });
     articles = await models.Article.insertMany(articles);
 
-    const rawComments = require('./devData/comments.json');
+    const rawComments = require(`./${tag}Data/comments.json`);
     let comments = rawComments.map(function (obj) {
         return {...obj,
             belongs_to: getID(articles, 'title', obj.belongs_to),
@@ -36,5 +36,5 @@ async function init () {
     mongoose.disconnect();
 }
 
-init()
+seedDatabase('dev')
 .catch(err => console.log(err));
