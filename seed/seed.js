@@ -13,13 +13,20 @@ function getID (collection, key, value) {
 async function init () {
     await mongoose.connect('mongodb://localhost/northcodersNews');
     await mongoose.connection.dropDatabase();
-    await models.User.insertMany(require('./devData/users.json'));
-    await models.Topic.insertMany(require('./devData/topics.json'));
-    // await models.Article.insertMany(
-    //     require('./devData/articles.json').map(
-    //         function(input) {
-    //             return {...input, belongs_to: input.topic};
-    //         }));
+    const users = await models.User.insertMany(require('./devData/users.json'));
+    const topics = await models.Topic.insertMany(require('./devData/topics.json'));
+    const rawArticles = require('./devData/articles.json');
+    const rawComments = require('./devData/comments.json');
+
+    let articles = rawArticles.map(function(obj) {
+        return {...obj,
+            created_by: getID(users, 'username', obj.created_by),
+            belongs_to: getID(topics, 'slug', obj.topic),
+        };
+    });
+
+    articles = await models.Article.insertMany(articles);
+
     mongoose.disconnect();
 }
 
