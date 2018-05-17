@@ -1,6 +1,7 @@
 const app = require('express')();
 
 const middleware = require('./middleware');
+const apiRouter = require('./routes/api.routes');
 
 const PORT = 3000;
 
@@ -8,9 +9,7 @@ app.use(middleware.logToScreen);
 app.use(middleware.bodyParser);
 app.use(middleware.jsonChecker);
 
-app.get('/api', function (req, res, next) {
-    return res.sendFile('./doc.html', {root:__dirname});
-})
+app.use('/api', apiRouter);
 
 
 app.use(middleware.handleError);
