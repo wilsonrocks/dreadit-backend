@@ -1,7 +1,12 @@
 const mongoose = require('mongoose');
 const models = require('../models');
 
-
+function getID (collection, key, value) {
+    // returns the objectID from the given collection when the value given by key matches value.
+    // returns null if not there.
+    const answer =  collection.filter(x => x[key] === value)[0]
+    return answer ? answer._id : null;
+}
 
 
 
