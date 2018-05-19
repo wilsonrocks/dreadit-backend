@@ -1,11 +1,12 @@
 function logToScreen (req, res, next) {
+    if (process.env.NODE_ENV === 'test') return next();
+    
     const logOutput = `${Date().toString()} ${req.method} ${req.originalUrl}`;
     console.log(logOutput);
-    next();
+    return next();
 }
 
 function handleError (errorObj, req, res, next) {
-    if (process.env.NODE_ENV === 'test') return next();
     if (errorObj.status) {
         return res.status(errorObj.status)
         .send(errorObj);
