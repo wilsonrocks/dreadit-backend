@@ -9,6 +9,8 @@ let seedData = 'intialized';
 
 const articleKeys = ['_id', 'title', 'body', 'belongs_to', 'votes', 'created_by'];
 
+
+
 describe('NorthCoders News API', function () {
 
     before(function () {
@@ -115,6 +117,29 @@ describe('NorthCoders News API', function () {
                     expect(created.belongs_to).to.equal(`${topic}`);
                 });
             });
+            it('returns a 400 if the topic is not valid', function () {
+                return request(app)
+                .post('/api/topics/FAKER/articles')
+                .expect(400)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(400);
+                });
+            });
+            it('returns a 404 if the topic is valid but not there', function () {
+                return request(app)
+                .post('/api/topics/eeeeeeeeeeeeeeeeeeeeeeee/articles')
+                .expect(404)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(404);
+                })
+            })
+            // return 400 if bad JSON
+            // return 400 if fields missing
+
         });
     });
 

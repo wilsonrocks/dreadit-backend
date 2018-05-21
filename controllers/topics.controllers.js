@@ -36,8 +36,14 @@ function fetchArticlesForTopic (req, res, next) {
 }
 
 function createArticle(req, res, next) {
+
     const topic = req.params._id;
-    User.findOne()
+
+    Topic.findById(topic)
+    .then(data => {
+        if (data === null) throw 'topicDoesNotExist';
+        return User.findOne();
+    })
     .then(user => {
         return Article.create(
             {
@@ -53,6 +59,8 @@ function createArticle(req, res, next) {
         .send({created: articleFilter(data)});
     })
     .catch(err => {
+        if (err.name === 'CastError') return next({status:400, message:`Topic id ${topic} is invalid.`})
+        if (err === 'topicDoesNotExist') return next({status:404, message: `Topic with id ${topic} does not exist`});
         console.error(err);
         return next({status:500, message:'Something Went Wrong'});
     })
