@@ -135,6 +135,19 @@ describe('NorthCoders News API', function () {
                 .get('/api/articles/NOTANID')
                 .then(res => {
                     expect(res.status).to.equal(400);
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(400);
+                });
+            });
+            it('returns a 404 if the id is valid but not present', function () {
+                return request(app)
+                .get('/api/articles/eeeeeeeeeeeeeeeeeeeeeeee')
+                .then(res => {
+                    expect(res.status).to.equal(404);
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(404);
                 });
             });
         });

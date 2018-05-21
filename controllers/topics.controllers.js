@@ -13,6 +13,7 @@ function fetchAll (req, res, next) {
 function fetchArticlesForTopic (req, res, next) {
     const id = req.params.id;
     models.Topic.findOne({_id:id})
+    .select()
     .then(data => {
         if (data === null) throw 'topicDoesNotExist';
         return models.Article.find({belongs_to:id})
@@ -23,7 +24,7 @@ function fetchArticlesForTopic (req, res, next) {
     })
     .catch(err => {
         if (err === 'topicDoesNotExist') {
-            return next({status:400, message: `There is no topic with id ${id} to find articles for`});
+            return next({status:404, message: `There is no topic with id ${id} to find articles for`});
         }
 
         if (err.name === 'CastError') {
