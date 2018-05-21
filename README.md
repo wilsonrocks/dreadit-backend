@@ -50,20 +50,6 @@ Data has been provided for both testing and development environments so you will
 ### Routes
 
 ``` http
-PUT /api/articles/:article_id
-```
-
-Increment or Decrement the votes of an article by one. This route requires a vote query of 'up' or 'down'
-e.g: `/api/articles/:article_id?vote=up`
-
-``` http
-PUT /api/comments/:comment_id
-```
-
-Increment or Decrement the votes of a comment by one. This route requires a vote query of 'up' or 'down'
-e.g: `/api/comments/:comment_id?vote=down`
-
-``` http
 DELETE /api/comments/:comment_id
 ```
 
