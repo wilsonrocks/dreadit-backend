@@ -216,19 +216,67 @@ describe('NorthCoders News API', function () {
     });
 
     describe('/api/articles/:_id/comments', function () {
-        it('returns all comments for the selected article', function () {
-            const article = seedData.articles[0]._id;
-            const expectedComments = seedData.comments.filter(comment => comment.belongs_to === article._id);
-            return request(app)
-            .get(`/api/articles/${article}/comments`)
-            .expect(200)
-            .then(res => {
-                expect(res.body).to.be.an('object');
-                expect(res.body).to.have.keys('comments');
-                expect(res.body.comments).to.be.an('array');
-                expect(res.body.comments.length).to.equal(expectedComments.length);
-                expect(res.body.comments[0]).to.have.keys(commentKeys);
-                expect(res.body.comments[0].belongs_to).to.equal(`${article}`);
+        describe('GET', function () {
+            it('returns all comments for the selected article', function () {
+                const article = seedData.articles[0]._id;
+                const expectedComments = seedData.comments.filter(comment => comment.belongs_to === article._id);
+                return request(app)
+                .get(`/api/articles/${article}/comments`)
+                .expect(200)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('comments');
+                    expect(res.body.comments).to.be.an('array');
+                    expect(res.body.comments.length).to.equal(expectedComments.length);
+                    expect(res.body.comments[0]).to.have.keys(commentKeys);
+                    expect(res.body.comments[0].belongs_to).to.equal(`${article}`);
+                });
+            });
+        });
+
+        describe('POST', function () {
+            const testComment = {comment: 'bro do you even lift?'};
+            it('creates and returns a new comment', function () {
+                const article = seedData.articles[0]._id;
+                return request(app)
+                .post(`/api/articles/${article}/comments`)
+                .send(testComment)
+                .expect(201)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('created');
+                    const created = res.body.created;
+                    expect(created).to.be.an('object');
+                    expect(created).to.have.keys(commentKeys);
+                });
+            });
+            it('returns 400 if the article id is invalid', function () {
+                return request(app)
+                .post('/api/articles/FAKED/comments')
+                .send(testComment)
+                .expect(400)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(400);
+                });
+            });
+            it('returns 404 if the article id valid but not present', function () {
+                return request(app)
+                .post('/api/articles/eeeeeeeeeeeeeeeeeeeeeeee/comments')
+                .send(testComment)
+                .expect(404)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(404);
+                });
+            });
+            it('returns 400 if the comment text is missing', function () {
+                const article = seedData.articles[0]._id;
+                return request(app)
+                .post(`/api/articles/${article}/comments`)
+                .expect(400);
             });
         });
     });

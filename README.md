@@ -50,19 +50,6 @@ Data has been provided for both testing and development environments so you will
 ### Routes
 
 ``` http
-GET /api/articles/:article_id/comments
-```
-
-Get all the comments for a individual article
-
-``` http
-POST /api/articles/:article_id/comments
-```
-
-Add a new comment to an article. This route requires a JSON body with a comment key and value pair
-e.g: `{"comment": "This is my new comment"}`
-
-``` http
 PUT /api/articles/:article_id
 ```
 

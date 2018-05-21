@@ -1,4 +1,4 @@
-const {Article, Comment} = require('../models');
+const {Article, Comment, User} = require('../models');
 const {articleFilter, commentFilter} = require('../helpers');
 
 function fetchAllArticles (req, res, next) {
@@ -37,9 +37,40 @@ function fetchCommentsForArticle (req, res, next) {
             comments: data.map(commentFilter)
         });
     })
-    .catch(err => console.error(err));
-
+    .catch(err => {
+        console.error(err)
+        return next({status:500, message:'Something went wrong!'});
+    });
 }
 
-module.exports = {fetchAllArticles, fetchSpecificArticle, fetchCommentsForArticle};
+function createComment (req, res, next) {
+    const article = req.params._id;
+    Promise.all([User.findOne(), Article.findById(article)])
+    .then(([user, article]) => {
+        if (article === null) throw 'articleDoesNotExist';
+        if (req.body.comment === undefined) throw 'noComment';
+        return Comment.create({
+            body: req.body.comment,
+            belongs_to: article._id,
+            created_by: user._id
+        })
+    })
+    .then(data => 
+        res
+        .status(201)
+        .send({created: commentFilter(data)}))
+    .catch(err => {
+        if (err.name === 'CastError') return next({status:400, message: `Article id ${article} is invalid`});
+        if (err === 'articleDoesNotExist') return next({status: 404, message: `There is no article with id ${article}.`});
+        if (err === 'noComment') return next({status: 400, message: 'The request body must contain a comment field'});
+        console.error(err)
+        return next({status:500, message:'Something went wrong!'});
+    });
+}
+
+module.exports = {
+    fetchAllArticles,
+    fetchSpecificArticle,
+    fetchCommentsForArticle,
+    createComment,};
 
