@@ -1,10 +1,13 @@
 const {Article} = require('../models');
-const articleFields = ['_id', 'votes', 'title', 'created_by', 'body', 'belongs_to'];
+const {articleFilter} = require('../helpers');
 
 function fetchAllArticles (req, res, next) {
     Article.find({})
-    .select(articleFields)
-    .then(data => res.status(200).send({articles:data}))
+    .then(data => {
+        return res
+        .status(200)
+        .send({articles: data.map(articleFilter)});
+    })
     .catch(err => {
         console.error(err);
         return next({status:500, message:'Something went wrong!'});
@@ -14,10 +17,9 @@ function fetchAllArticles (req, res, next) {
 function fetchSpecificArticle (req, res, next) {
     const {_id} = req.params;    
     Article.findOne({_id})
-    .select(articleFields)
     .then(data => {
         if (data === null) throw 'articleDoesNotExist';
-        res.send({article: data});
+        res.send({article: articleFilter(data)});
     })
     .catch(err => {
         if (err.name === 'CastError') return next({status:400, message:`Id ${_id} is not valid.`});

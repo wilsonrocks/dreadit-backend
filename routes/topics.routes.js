@@ -1,7 +1,9 @@
 const app = require('express').Router();
-const controllers = require('../controllers/topics.controllers');
+const {fetchAll, fetchArticlesForTopic, createArticle} = require('../controllers/topics.controllers');
 
-app.get('', controllers.fetchAll);
-app.get('/:id/articles', controllers.fetchArticlesForTopic)
+app.get('', fetchAll);
+app.get('/:id/articles', fetchArticlesForTopic);
+app.post('/:_id/articles', createArticle);
+
 
 module.exports = app;

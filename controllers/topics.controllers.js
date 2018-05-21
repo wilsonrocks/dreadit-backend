@@ -1,26 +1,25 @@
-const models = require('../models');
-const _ = require('lodash');
+const {Article, User, Comment, Topic} = require('../models');
+const {articleFilter, topicFilter} = require('../helpers');
 
 function fetchAll (req, res, next) {
-    models.Topic.find()
+    Topic.find()
     .then(data => {
         return res.status(200).send(
-            {topics: data.map(d => _.pick(d, ['_id', 'title', 'slug']))}
+            {topics: data.map(topicFilter)}
         );
     });
 }
 
 function fetchArticlesForTopic (req, res, next) {
     const id = req.params.id;
-    models.Topic.findOne({_id:id})
+    Topic.findOne({_id:id})
     .select()
     .then(data => {
         if (data === null) throw 'topicDoesNotExist';
-        return models.Article.find({belongs_to:id})
+        return Article.find({belongs_to:id})
     })   
     .then(data => {
-        data = data.map(d => _.pick(d, ['_id', 'votes', 'title', 'created_by', 'body', 'belongs_to']));
-        res.send({articles:data});
+        res.send({articles: data.map(articleFilter)});
     })
     .catch(err => {
         if (err === 'topicDoesNotExist') {
@@ -36,4 +35,28 @@ function fetchArticlesForTopic (req, res, next) {
     });
 }
 
-module.exports = {fetchAll, fetchArticlesForTopic};
+function createArticle(req, res, next) {
+    const topic = req.params._id;
+    User.findOne()
+    .then(user => {
+        return Article.create(
+            {
+                ...req.body,
+                belongs_to: topic,
+                created_by: user._id,
+            }
+        );
+    })
+    .then(data => {
+        res
+        .status(201)
+        .send({created: articleFilter(data)});
+    })
+    .catch(err => {
+        console.error(err);
+        return next({status:500, message:'Something Went Wrong'});
+    })
+}
+
+
+module.exports = {fetchAll, fetchArticlesForTopic, createArticle};

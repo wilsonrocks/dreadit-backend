@@ -3,9 +3,11 @@ const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const request = require('supertest');
 const seed = require('../seed/seed');
-
 const app = require('../index.js');
+
 let seedData = 'intialized';
+
+const articleKeys = ['_id', 'title', 'body', 'belongs_to', 'votes', 'created_by'];
 
 describe('NorthCoders News API', function () {
 
@@ -72,7 +74,7 @@ describe('NorthCoders News API', function () {
                     expect(res.body.articles).to.be.an('array');
                     expect(res.body.articles.length).to.equal(expectedArticles.length);
                     const returnedArticle = res.body.articles[0];
-                    expect(returnedArticle).to.have.keys('_id', 'title', 'body', 'belongs_to', 'votes', 'created_by');
+                    expect(returnedArticle).to.have.keys(articleKeys);
                     expect(returnedArticle.belongs_to).to.equal(`${testTopic._id}`);
                 });
             });
@@ -93,6 +95,24 @@ describe('NorthCoders News API', function () {
                 .then(res => {
                     expect(res.body).to.be.an('object');
                     expect(res.body).to.have.keys('status', 'message');
+                });
+            });
+        });
+        describe('POST', function () {
+            it('creates a new article', function () {
+                const topic = seedData.topics[0]._id;
+                return request(app)
+                .post(`/api/topics/${topic}/articles`)
+                .send({title:'#nolivesmatter', body:'Ice-T really is very good, isn\'t he?'})
+                .expect(201)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('created');
+                    const created = res.body.created;
+                    expect(created).to.be.an('object');
+                    expect(created).to.have.keys(articleKeys);
+                    expect(created.votes).to.equal(0);
+                    expect(created.belongs_to).to.equal(`${topic}`);
                 });
             });
         });
