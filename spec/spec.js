@@ -212,7 +212,85 @@ describe('NorthCoders News API', function () {
                 });
             });
         });
+        describe('PUT', function () {
+            it('increments a vote count if passed "up"', function () {
+                const article = seedData.articles[0];
+                const votesBefore = article.votes;
+                return request(app)
+                .put(`/api/articles/${article._id}`)
+                .query({vote:'up'})
+                .expect(200)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('article');
+                    expect(res.body.article).to.be.an('object');
+                    expect(res.body.article).to.have.keys(articleKeys);
+                    expect(res.body.article.votes).to.equal(votesBefore + 1);
+                });
+            });
+            it('increments a vote count if passed "down"', function () {
+                const article = seedData.articles[0];
+                const votesBefore = article.votes;
+                return request(app)
+                .put(`/api/articles/${article._id}`)
+                .query({vote:'down'})
+                .expect(200)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('article');
+                    expect(res.body.article).to.be.an('object');
+                    expect(res.body.article).to.have.keys(articleKeys);
+                    expect(res.body.article.votes).to.equal(votesBefore - 1);
+                });
+            });
+            it('returns 400 if the article id is invalid', function () {
+                return request(app)
+                .put('/api/articles/FAKE')
+                .query({vote:'up'})
+                .expect(400)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(400);
+                });
+            });
+            it('returns 404 if the article id is valid but not in the database', function () {
+                return request(app)
+                .put('/api/articles/eeeeeeeeeeeeeeeeeeeeeeee')
+                .query({vote:'up'})
+                .expect(404)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(404);
+                });
+            });
+            it('returns 400 if the vote query string is missing', function () {
+                const article = seedData.articles[0];
+                return request(app)
+                .put(`/api/articles/${article._id}`)
+                .expect(400)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(400);
+                });
+            });
+            it('returns 400 if the vote query has a value other than "up" or "down"', function () {
+                const article = seedData.articles[0];
+                return request(app)
+                .put(`/api/articles/${article._id}`)
+                .query({vote: 'yahoo!'})
+                .expect(400)
+                .then(res => {
+                    console.log(res.body.message);
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(400);
+                });
+            });
 
+        });
     });
 
     describe('/api/articles/:_id/comments', function () {
