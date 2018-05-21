@@ -1,5 +1,5 @@
-const {Article} = require('../models');
-const {articleFilter} = require('../helpers');
+const {Article, Comment} = require('../models');
+const {articleFilter, commentFilter} = require('../helpers');
 
 function fetchAllArticles (req, res, next) {
     Article.find({})
@@ -29,5 +29,17 @@ function fetchSpecificArticle (req, res, next) {
     });
 }
 
-module.exports = {fetchAllArticles, fetchSpecificArticle};
+function fetchCommentsForArticle (req, res, next) {
+    const {_id} = req.params;
+    Comment.find({belongs_to: _id})
+    .then(data => {
+        return res.send({
+            comments: data.map(commentFilter)
+        });
+    })
+    .catch(err => console.error(err));
+
+}
+
+module.exports = {fetchAllArticles, fetchSpecificArticle, fetchCommentsForArticle};
 

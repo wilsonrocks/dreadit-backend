@@ -50,43 +50,6 @@ Data has been provided for both testing and development environments so you will
 ### Routes
 
 ``` http
-GET /api
-```
-
-Serves an HTML page with documentation for all the available endpoints
-
-``` http
-GET /api/topics
-```
-
-Get all the topics
-
-``` http
-GET /api/topics/:topic_id/articles
-```
-
-Return all the articles for a certain topic
-
-``` http
-POST /api/topics/:topic_id/articles
-```
-
-Add a new article to a topic. This route requires a JSON body with title and body key value pairs
-e.g: `{ "title": "this is my new article title", "body": "This is my new article content"}`
-
-``` http
-GET /api/articles
-```
-
-Returns all the articles
-
-``` http
-GET /api/articles/:article_id
-```
-
-Get an individual article
-
-``` http
 GET /api/articles/:article_id/comments
 ```
 

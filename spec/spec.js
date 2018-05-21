@@ -8,6 +8,7 @@ const app = require('../index.js');
 let seedData = 'intialized';
 
 const articleKeys = ['_id', 'title', 'body', 'belongs_to', 'votes', 'created_by'];
+const commentKeys = ['created_at', '_id', 'body', 'belongs_to', 'created_by', 'votes'];
 
 
 
@@ -155,8 +156,6 @@ describe('NorthCoders News API', function () {
                 .expect(400);
             });
             // return 400 if bad JSON
-            // return 400 if fields missing
-
         });
     });
 
@@ -177,7 +176,7 @@ describe('NorthCoders News API', function () {
         });
     });
 
-    describe('/api/articles/id', function () {
+    describe('/api/articles/:_id', function () {
         describe('GET', function () {
             it('fetches the specific article', function () {
                 return request(app)
@@ -211,6 +210,25 @@ describe('NorthCoders News API', function () {
                     expect(res.body).to.have.keys('status', 'message');
                     expect(res.body.status).to.equal(404);
                 });
+            });
+        });
+
+    });
+
+    describe('/api/articles/:_id/comments', function () {
+        it('returns all comments for the selected article', function () {
+            const article = seedData.articles[0]._id;
+            const expectedComments = seedData.comments.filter(comment => comment.belongs_to === article._id);
+            return request(app)
+            .get(`/api/articles/${article}/comments`)
+            .expect(200)
+            .then(res => {
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.keys('comments');
+                expect(res.body.comments).to.be.an('array');
+                expect(res.body.comments.length).to.equal(expectedComments.length);
+                expect(res.body.comments[0]).to.have.keys(commentKeys);
+                expect(res.body.comments[0].belongs_to).to.equal(`${article}`);
             });
         });
     });

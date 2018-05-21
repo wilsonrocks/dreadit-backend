@@ -1,9 +1,13 @@
 const app = require('express').Router();
 
-const controllers = require('../controllers/articles.controller');
+const {
+    fetchAllArticles,
+    fetchSpecificArticle,
+    fetchCommentsForArticle} = require('../controllers/articles.controller');
 
-app.get('', controllers.fetchAllArticles);
-app.get('/:_id', controllers.fetchSpecificArticle);
+app.get('', fetchAllArticles);
+app.get('/:_id', fetchSpecificArticle);
+app.get('/:_id/comments', fetchCommentsForArticle)
 
 
 module.exports = app;
