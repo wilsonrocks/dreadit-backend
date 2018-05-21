@@ -38,6 +38,8 @@ function fetchArticlesForTopic (req, res, next) {
 function createArticle(req, res, next) {
 
     const topic = req.params._id;
+    if (!req.body.title) return next({status:400, message: `Request body is missing a title field`});
+    if (!req.body.body) return next({status:400, message: `Request body is missing a title field`});
 
     Topic.findById(topic)
     .then(data => {

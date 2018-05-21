@@ -101,11 +101,12 @@ describe('NorthCoders News API', function () {
             });
         });
         describe('POST', function () {
+            const testArticle = {title:'#nolivesmatter', body:'Ice-T really is very good, isn\'t he?'};
             it('creates a new article', function () {
                 const topic = seedData.topics[0]._id;
                 return request(app)
                 .post(`/api/topics/${topic}/articles`)
-                .send({title:'#nolivesmatter', body:'Ice-T really is very good, isn\'t he?'})
+                .send(testArticle)
                 .expect(201)
                 .then(res => {
                     expect(res.body).to.be.an('object');
@@ -120,6 +121,7 @@ describe('NorthCoders News API', function () {
             it('returns a 400 if the topic is not valid', function () {
                 return request(app)
                 .post('/api/topics/FAKER/articles')
+                .send(testArticle)
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');
@@ -130,13 +132,28 @@ describe('NorthCoders News API', function () {
             it('returns a 404 if the topic is valid but not there', function () {
                 return request(app)
                 .post('/api/topics/eeeeeeeeeeeeeeeeeeeeeeee/articles')
+                .send(testArticle)
                 .expect(404)
                 .then(res => {
                     expect(res.body).to.be.an('object');
                     expect(res.body).to.have.keys('status', 'message');
                     expect(res.body.status).to.equal(404);
                 })
-            })
+            });
+            it('returns a 400 if the title field is missing in the body', function () {
+                const topic = seedData.topics[0]._id;
+                return request(app)
+                .post(`/api/topics/${topic}/articles`)
+                .send({body: 'what?'})
+                .expect(400);
+            });
+            it('returns a 400 if the body field is missing in the body', function () {
+                const topic = seedData.topics[0]._id;
+                return request(app)
+                .post(`/api/topics/${topic}/articles`)
+                .send({title: 'what?'})
+                .expect(400);
+            });
             // return 400 if bad JSON
             // return 400 if fields missing
 
