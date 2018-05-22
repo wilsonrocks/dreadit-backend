@@ -283,7 +283,6 @@ describe('NorthCoders News API', function () {
                 .query({vote: 'yahoo!'})
                 .expect(400)
                 .then(res => {
-                    console.log(res.body.message);
                     expect(res.body).to.be.an('object');
                     expect(res.body).to.have.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
@@ -434,6 +433,44 @@ describe('NorthCoders News API', function () {
                     expect(res.body).to.be.an('object');
                     expect(res.body).to.have.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
+                });
+            });
+        });
+        describe('DELETE', function () {
+            it('deletes the item', function () {
+                const comment = `${seedData.comments[0]._id}`;
+                return request(app)
+                .delete(`/api/comments/${comment}`)
+                .expect(200)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('deleted');
+                    expect(res.body.deleted).to.have.keys(commentKeys);
+                    expect(res.body.deleted._id).to.equal(comment);
+                    return request(app)
+                    .get(`/api/comments/${comment}`)
+                    .expect(404);
+                });
+            });
+            it('returns a 400 if the id is invalid', function () {
+                const comment = `${seedData.comments[0]._id}`;
+                return request(app)
+                .delete(`/api/comments/fakerfakefake`)
+                .expect(400)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(400);
+                });
+            });
+            it('returns a 404 if the id is valid but does not exist', function () {
+                return request(app)
+                .delete('/api/comments/eeeeeeeeeeeeeeeeeeeeeeee')
+                .expect(404)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body.status).to.equal(404);
                 });
             });
         });
