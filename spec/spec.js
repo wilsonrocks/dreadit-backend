@@ -9,7 +9,7 @@ let seedData = 'intialized';
 
 const articleKeys = ['_id', 'title', 'body', 'belongs_to', 'votes', 'created_by'];
 const commentKeys = ['created_at', '_id', 'body', 'belongs_to', 'created_by', 'votes'];
-
+const userKeys = ['_id', 'username', 'name', 'avatar_url'];
 
 
 describe('NorthCoders News API', function () {
@@ -36,8 +36,8 @@ describe('NorthCoders News API', function () {
         it('GET returns an HTML page with the documented endpoints', function () {
             return request(app)
                 .get('/api')
+                .expect(200)
                 .then(res => {
-                    expect(res.status).to.equal(200);
                     expect(res.type).to.equal('text/html');
                 });
         });
@@ -164,8 +164,8 @@ describe('NorthCoders News API', function () {
             it('fetches all the articles', function () {
                 return request(app)
                 .get('/api/articles')
+                .expect(200)
                 .then(res => {
-                    expect(res.status).to.equal(200);
                     expect(res.body).to.be.an('object');
                     expect(res.body).to.have.keys('articles');
                     expect(res.body.articles).to.be.an('array');
@@ -181,10 +181,10 @@ describe('NorthCoders News API', function () {
             it('fetches the specific article', function () {
                 return request(app)
                 .get('/api/articles')
+                .expect(200)
                 .then(res => res.body.articles[0]._id)
                 .then(id => request(app).get(`/api/articles/${id}`))
                 .then(res => {
-                    expect(res.status).to.equal(200);
                     expect(res.body).to.be.an('object');
                     expect(res.body).to.have.keys('article');
                     expect(res.body.article).to.be.an('object');
@@ -194,8 +194,8 @@ describe('NorthCoders News API', function () {
             it('returns a 400 if the id is invalid', function () {
                 return request(app)
                 .get('/api/articles/NOTANID')
+                .expect(400)
                 .then(res => {
-                    expect(res.status).to.equal(400);
                     expect(res.body).to.be.an('object');
                     expect(res.body).to.have.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
@@ -204,8 +204,8 @@ describe('NorthCoders News API', function () {
             it('returns a 404 if the id is valid but not present', function () {
                 return request(app)
                 .get('/api/articles/eeeeeeeeeeeeeeeeeeeeeeee')
+                .expect(404)
                 .then(res => {
-                    expect(res.status).to.equal(404);
                     expect(res.body).to.be.an('object');
                     expect(res.body).to.have.keys('status', 'message');
                     expect(res.body.status).to.equal(404);
@@ -473,6 +473,27 @@ describe('NorthCoders News API', function () {
                     expect(res.body.status).to.equal(404);
                 });
             });
+        });
+    });
+
+    describe.only('/api/users/:username', function () {
+        it('returns the information for the specified user', function () {
+            const {_id, username} = seedData.users[0];
+            return request(app)
+            .get(`/api/users/${username}`)
+            .expect(200)
+            .then(res => {
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.keys('user');
+                expect(res.body.user).to.be.an('object');
+                expect(res.body.user).to.have.keys(userKeys);
+                expect(res.body.user._id).to.equal(`${_id}`);
+            });
+        });
+        it('returns a 404 if the username does not exist', function () {
+            return request(app)
+            .get('/api/users/mydyingbride')
+            .expect(404);
         });
     });
 });

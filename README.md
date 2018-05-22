@@ -49,18 +49,6 @@ Data has been provided for both testing and development environments so you will
 
 ### Routes
 
-``` http
-DELETE /api/comments/:comment_id
-```
-
-Deletes a comment
-
-``` http
-GET /api/users/:username
-```
-
-Returns a JSON object with the profile data for the specified user.
-
 ### Step 3 - Hosting
 
 Once you are happy with your seed/dev file, prepare your project for production. You will need to seed the development data to mLab, and host the API on Heroku. If you've forgotten how to do this, you may want to look at this tutorial! https://www.sitepoint.com/deploy-rest-api-in-30-mins-mlab-heroku/

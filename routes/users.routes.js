@@ -1,6 +1,7 @@
-const app = require('express').Router();
+const router = require('express').Router();
+const {fetchUser} = require('../controllers/users.controller');
+
+router.get('/:username', fetchUser);
 
 
-
-
-module.exports = app;
+module.exports = router;
