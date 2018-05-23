@@ -7,7 +7,48 @@
     <title>NorthCoders News API</title>
 </head>
 <body>
-    Documents go here...
+
+<h1>NorthCoders News API</h1>
+    All endpoints return an object with a single key with the information nested as the value.
+    <h2>/api/users</h2>
+        Fields returned for this endpoint: '_id', 'name', 'username', 'avatar_url'.
+        <h3>GET /api/users/:username</h3>
+            Returns information about the user given by <em>username</em>.
+
+    <h2>/api/topics</h2>
+        Fields returned for this endpoint: '_id', 'title', 'slug'.
+        <h3>GET /api/topics</h3>
+            Returns an array of all topics.
+        <h3>GET /api/topics/:_id/articles</h3>
+            Returns an array of all articles for the given topic.
+        <h3>POST /api/topics/:_id/articles</h3>
+            Creates a new article for the topic with the given <em>_id</em>.
+            The body should contain a JSON object with <em>title</em> and <em>body</em> keys.
+
+    <h2>/api/articles</h2>
+        Fields returned by this endpoint: '_id', 'title', 'body', 'belongs_to', 'votes', 'created_by'.
+        <h3>GET /api/articles</h3>
+            Returns an array of all articles.
+        <h3>GET /api/articles/:_id</h3>
+            Returns a single article.
+        <h3>PUT /api/articles/:_id</h3>
+            Votes the article given by <em>_id</em> up or down.
+            The query string must contain a parameter 'vote' with value 'up' or 'down'.
+        <h3>GET /api/articles/:_id/comments</h3>
+            Returns all comments for the article given by <em>_id</em>.
+        <h3>POST /api/articles/:_id/comments</h3>
+            Creates a new comment. The body must be a JSON object with
+            the key <em>comment</em> and the text of the comment as the value.
     
+    <h2>/api/comments</h2>
+        Fields returned by this endpoint: 'created_at', '_id', 'body', 'belongs_to', 'created_by', 'votes'.
+        <h3>PUT /api/comments/:_id</h3>
+            Votes the comment given by <em>_id</em> up or down.
+            The query string must contain a parameter 'vote' with value 'up' or 'down'.
+        <h3>DELETE /api/comments/:_id</h3>            
+            Deletes the comment given by <em>_id</em> and returns it.
+
+
+
 </body>
 </html>
