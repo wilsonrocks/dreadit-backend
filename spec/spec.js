@@ -15,7 +15,7 @@ const userKeys = ['_id', 'username', 'name', 'avatar_url'];
 describe('NorthCoders News API', function () {
 
     before(function () {
-        mongoose.connect('mongodb://localhost/northcoders_news_test');
+        // mongoose.connect('mongodb://localhost/northcoders_news_test');
     });
     beforeEach(function () {
         return mongoose.connection.dropDatabase()
@@ -476,7 +476,7 @@ describe('NorthCoders News API', function () {
         });
     });
 
-    describe.only('/api/users/:username', function () {
+    describe('/api/users/:username', function () {
         it('returns the information for the specified user', function () {
             const {_id, username} = seedData.users[0];
             return request(app)
