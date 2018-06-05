@@ -11,23 +11,23 @@ function fetchAll (req, res, next) {
 }
 
 function fetchArticlesForTopic (req, res, next) {
-    const id = req.params.id;
-    Topic.findOne({_id:id})
+    const _id = req.params.id;
+    Topic.findOne({_id})
     .select()
     .then(data => {
         if (data === null) throw 'topicDoesNotExist';
-        return Article.find({belongs_to:id})
+        return Article.find({belongs_to:_id})
     })   
     .then(data => {
         res.send({articles: data.map(articleFilter)});
     })
     .catch(err => {
         if (err === 'topicDoesNotExist') {
-            return next({status:404, message: `There is no topic with id ${id} to find articles for`});
+            return next({status:404, message: `There is no topic with id ${_id} to find articles for`});
         }
 
         if (err.name === 'CastError') {
-            return next({status:400, message: `Invalid id ${id} for topic`})
+            return next({status:400, message: `Invalid id ${_id} for topic`})
         }
 
         console.error(err);

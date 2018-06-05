@@ -14,15 +14,26 @@ app.use('/api', apiRouter);
 
 
 app.use(middleware.handleError);
-mongoose.connect(MONGO_URL).then(
-    () => {
 
+mongoose.connect(MONGO_URL)
+.then(() => {
+    if (process.env.NODE_ENV === 'dev') {
+        require('./seed/seed')('dev');
+    }
+})
+.then(
+    () => {
         if(process.env.NODE_ENV !== 'test') {
             app.listen(PORT, () => {
             console.log('NorthCoders News Server');
             console.log(`Listening on port ${PORT}`);
         });
     }
+})
+.catch(err => {
+    if (err.name = 'MongoNetworkError') console.error('Something went wrong with connecting to mongoDB. Try typing mongod first.');
+    else console.error(err);
+    process.exit(); //make sure we exit
 });
 
 

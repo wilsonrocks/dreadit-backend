@@ -6,10 +6,11 @@
 git clone https://github.com/wilsonrocks/BE-PT-northcoders-news
 cd BE-PT-northcoders-news
 npm install
+npm run seed dev
 npm run dev
 ```
 
-Will start the server running.
+Will seed the dev database and start the server running.
 
 `curl localhost:3000/api/topics`
 
@@ -38,13 +39,13 @@ should return:
 ```
 
 ### Prerequisites
-Dependencies from npm will be installed automatically. A running copy of mongoDB is needed. If you are running the tests or the dev environment make sure you've typed `mongod` beforehand.
+Dependencies from npm will be installed automatically. A running instance of mongoDB is needed. If you are running the tests or the dev environment make sure you've typed `mongod` beforehand.
 
 If you're deploying this elsewhere, for example, on heroku, make sure the `MONGODB_URI` environment variable is set appropriately.
 
 ## Running Tests
 
-`npm test` will run an extensive series of tests for the API.
+`npm test` will run an extensive series of tests for the API. The database is reseeded before each test with special test data separate from the `dev` database.
 
 ## Deployment
 
