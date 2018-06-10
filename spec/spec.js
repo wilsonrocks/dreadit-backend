@@ -61,16 +61,19 @@ describe('NorthCoders News API', function () {
         });
     });
 
-    describe('/api/topics/:_id/articles', function () {
+    describe.only('/api/topics/:_id/articles', function () {
         describe('GET', function () {
             it('returns all the articles when the id is valid and present', function () {
                 const testTopic = seedData.topics[0];
                 const id = testTopic._id;
                 const expectedArticles = seedData.articles.filter(x => x.belongs_to === id);
+                const firstArticle = expectedArticles[0];
+
                 return request(app)
                 .get(`/api/topics/${id}/articles`)
                 .expect(200)
                 .then(res => {
+                    console.log(res.body);
                     expect(res.body).to.be.an('object');
                     expect(res.body).to.have.keys('articles');
                     expect(res.body.articles).to.be.an('array');

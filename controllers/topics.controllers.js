@@ -18,9 +18,18 @@ function fetchArticlesForTopic (req, res, next) {
         if (data === null) throw 'topicDoesNotExist';
         return Article.find({belongs_to:_id})
     })   
+    .then(data => ({articles: data.map(articleFilter)}))
     .then(data => {
-        res.send({articles: data.map(articleFilter)});
+        const counts = Promise.all(data.articles.map(d => Comment.count({_id: d._id})));
+        return Promise.all([data, counts]);
     })
+    .then(function ([data, counts]) {
+        return data.articles.map((d, index) => {
+            return {...d, commentCount:counts[index]};
+        })
+    })
+    .then((data) => ({articles: data}))
+    .then(data => res.send(data))
     .catch(err => {
         if (err === 'topicDoesNotExist') {
             return next({status:404, message: `There is no topic with id ${_id} to find articles for`});
