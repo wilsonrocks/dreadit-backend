@@ -15,26 +15,44 @@ app.use('/api', apiRouter);
 
 app.use(middleware.handleError);
 
-mongoose.connect(MONGO_URL)
-.then(() => {
-    if (process.env.NODE_ENV === 'dev') {
-        require('./seed/seed')('dev');
-    }
-})
-.then(
-    () => {
-        if(process.env.NODE_ENV !== 'test') {
-            app.listen(PORT, () => {
+const ENVIRONMENT = process.env.NODE_ENV;
+
+if (ENVIRONMENT === 'dev') {
+
+    return require('./seed/seed')(MONGO_URL, 'dev')
+    .then((seedData) => {
+        mongoose.connect(MONGO_URL)
+        app.listen(PORT, () => {
+            
             console.log('NorthCoders News Server');
             console.log(`Listening on port ${PORT}`);
         });
-    }
-})
-.catch(err => {
-    if (err.name = 'MongoNetworkError') console.error('Something went wrong with connecting to mongoDB. Try typing mongod first.');
-    else console.error(err);
-    process.exit(); //make sure we exit
-});
+    })
+    .catch(err => console.error(err));
+}
+
+
+
+// mongoose.connect(MONGO_URL)
+// .then(() => {
+//     if (process.env.NODE_ENV === 'dev') {
+//         require('./seed/seed')(MONGO_URL, 'dev');
+//     }
+// })
+// .then(
+//     () => {
+//         if(process.env.NODE_ENV !== 'test') {
+//             app.listen(PORT, () => {
+//             console.log('NorthCoders News Server');
+//             console.log(`Listening on port ${PORT}`);
+//         });
+//     }
+// })
+// .catch(err => {
+//     if (err.name = 'MongoNetworkError') console.error('Something went wrong with connecting to mongoDB. Try typing mongod first.');
+//     else console.error(err);
+//     process.exit(); //make sure we exit
+// });
 
 
 module.exports = app;

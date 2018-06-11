@@ -8,11 +8,11 @@ function getID (collection, key, value) {
     return answer ? answer._id : null;
 }
 
-function seedDatabase (tag) {
-
+function seedDatabase (url, tag) {
+    mongoose.connect(url);
     const users = User.insertMany(require(`${__dirname}/${tag}Data/users.json`));
     const topics = Topic.insertMany(require(`${__dirname}/${tag}Data/topics.json`));
-
+    
     return Promise.all([users, topics])
     .then(function addArticles ([users, topics]) {
         const articles = Article.insertMany(
@@ -39,7 +39,10 @@ function seedDatabase (tag) {
         return Promise.all([users, topics, articles, comments]);
     })
     .then(([users, topics, articles, comments]) => {
-        return {users, topics, articles, comments};
+        return mongoose.disconnect()
+        .then(() => {
+            return {users, topics, articles, comments};
+        });
     })
     .catch(err => console.error(err));
 }

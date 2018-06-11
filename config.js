@@ -8,7 +8,7 @@ else if (process.env.NODE_ENV === 'test') {
     MONGO_URL = 'mongodb://localhost/northcoders_news_test';
 }
 else {
-    process.env.NODE_ENV === 'dev';
+    process.env.NODE_ENV = 'dev';
     MONGO_URL = 'mongodb://localhost/northcoders_news_dev';
 }
 

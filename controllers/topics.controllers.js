@@ -2,6 +2,9 @@ const {Article, User, Comment, Topic} = require('../models');
 const {articleFilter, topicFilter} = require('../helpers');
 
 function fetchAll (req, res, next) {
+    console.log('hiya');
+    console.log(require('mongoose').connection.readyState);
+    
     Topic.find()
     .then(data => {
         return res.status(200).send(
