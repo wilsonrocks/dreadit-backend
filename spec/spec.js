@@ -14,22 +14,18 @@ const userKeys = ['_id', 'username', 'name', 'avatar_url'];
 
 
 describe('NorthCoders News API', function () {
-    before(function () {
-        return mongoose.connect(MONGO_URL);
-    });
 
     beforeEach(function () {
-        return mongoose.connection.dropDatabase()
-        .then(() => {
-            return seed(MONGO_URL, 'test');
-        })
+        return seed(MONGO_URL, 'test')
         .then(data => {
             seedData = data;
+        })
+        .then(()=>{
+            return mongoose.connect(MONGO_URL)
         });
-
     });
     
-    after(function () {
+    afterEach(function () {
         return mongoose.disconnect();
     });
 
@@ -64,7 +60,7 @@ describe('NorthCoders News API', function () {
         });
     });
 
-    describe.only('/api/topics/:_id/articles', function () {
+    describe('/api/topics/:_id/articles', function () {
         describe('GET', function () {
             it('returns all the articles when the id is valid and present', function () {
                 const testTopic = seedData.topics[0];
