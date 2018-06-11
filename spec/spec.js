@@ -62,7 +62,7 @@ describe('NorthCoders News API', function () {
 
     describe('/api/topics/:_id/articles', function () {
         describe('GET', function () {
-            it.only('returns all the articles when the id is valid and present', function () {
+            it('returns all the articles when the id is valid and present', function () {
                 const articleNumber = 1;
                 const testTopic = seedData.topics[articleNumber];
                 const id = testTopic._id;
@@ -175,7 +175,12 @@ describe('NorthCoders News API', function () {
                     expect(res.body).to.have.keys('articles');
                     expect(res.body.articles).to.be.an('array');
                     expect(res.body.articles).to.have.length(4);
-                    expect(res.body.articles[0]).to.have.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to');
+                    const articleNumber = 2;
+                    const requestedArticle = res.body.articles[articleNumber];
+                    expect(requestedArticle).to.have.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to', 'commentCount');
+                    expect(requestedArticle.commentCount).to.be.a('number');
+                    expect(requestedArticle.commentCount).to
+                    .equal(seedData.comments.filter(x => x.belongs_to === seedData.articles[articleNumber]._id).length);
                 });
             });
         });

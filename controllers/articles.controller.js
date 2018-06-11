@@ -3,10 +3,24 @@ const {articleFilter, commentFilter} = require('../helpers');
 
 function fetchAllArticles (req, res, next) {
     Article.find({})
+    .then(data => data.map(articleFilter))
+    .then(data => {
+        const output = data.map(datum => {
+            return Promise.all([datum, Comment.count({belongs_to: datum._id})])
+        });
+        return Promise.all(output);
+    })
+    .then( data => {
+        return data.map(
+            ([datum, count]) => {
+                return ({...datum, commentCount: count});
+            });
+    })
+
     .then(data => {
         return res
         .status(200)
-        .send({articles: data.map(articleFilter)});
+        .send({articles: data});
     })
     .catch(err => {
         console.error(err);
