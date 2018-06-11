@@ -62,11 +62,12 @@ describe('NorthCoders News API', function () {
 
     describe('/api/topics/:_id/articles', function () {
         describe('GET', function () {
-            it('returns all the articles when the id is valid and present', function () {
-                const testTopic = seedData.topics[0];
+            it.only('returns all the articles when the id is valid and present', function () {
+                const articleNumber = 1;
+                const testTopic = seedData.topics[articleNumber];
                 const id = testTopic._id;
                 const expectedArticles = seedData.articles.filter(x => x.belongs_to === id);
-                const firstArticle = expectedArticles[0];
+                const firstArticle = expectedArticles[articleNumber];
 
                 return request(app)
                 .get(`/api/topics/${id}/articles`)
@@ -76,8 +77,12 @@ describe('NorthCoders News API', function () {
                     expect(res.body).to.have.keys('articles');
                     expect(res.body.articles).to.be.an('array');
                     expect(res.body.articles.length).to.equal(expectedArticles.length);
-                    const returnedArticle = res.body.articles[0];
+                    const returnedArticle = res.body.articles[articleNumber];
                     expect(returnedArticle).to.have.keys(...articleKeys, 'commentCount');
+                    expect(returnedArticle.commentCount).to.be.a('number');
+                    expect(returnedArticle.commentCount).to
+                        .equal(seedData.comments
+                            .filter(comment => comment.belongs_to === returnedArticle._id).length);
                     expect(returnedArticle.belongs_to).to.equal(`${testTopic._id}`);
                 });
             });
