@@ -9,11 +9,16 @@ function getID (collection, key, value) {
 }
 
 function seedDatabase (url, tag) {
-    mongoose.connect(url);
+    return mongoose.connect(url)
+    .then(()=>{
+        return mongoose.connection.dropDatabase();
+    })
+    .then(()=>{
     const users = User.insertMany(require(`${__dirname}/${tag}Data/users.json`));
     const topics = Topic.insertMany(require(`${__dirname}/${tag}Data/topics.json`));
+    return Promise.all([users, topics]);
+    })
     
-    return Promise.all([users, topics])
     .then(function addArticles ([users, topics]) {
         const articles = Article.insertMany(
             require(`${__dirname}/${tag}Data/articles.json`)
