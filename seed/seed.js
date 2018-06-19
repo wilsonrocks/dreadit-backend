@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const {Article, Topic, User, Comment} = require('../models');
 
 function getID (collection, key, value) {
@@ -8,20 +7,21 @@ function getID (collection, key, value) {
     return answer ? answer._id : null;
 }
 
-function seedDatabase (url, tag) {
-    return mongoose.connect(url)
-    .then(()=>{
-        return mongoose.connection.dropDatabase();
-    })
-    .then(()=>{
-    const users = User.insertMany(require(`${__dirname}/${tag}Data/users.json`));
-    const topics = Topic.insertMany(require(`${__dirname}/${tag}Data/topics.json`));
-    return Promise.all([users, topics]);
-    })
-    
+function seed ({userJSON, topicsJSON, articlesJSON, commentsJSON}) {
+
+    if (require('mongoose').connection.readyState !== 1) {
+        throw new Error('Something is wrong with the mongo connection');
+    }
+
+    const users = User.insertMany(userJSON); //these two don't depend on anything else
+    const topics = Topic.insertMany(topicsJSON);
+
+
+    return Promise.all([users, topics])
+    //add articles based on the ids that mongo assigns for the relevant user and topic
     .then(function addArticles ([users, topics]) {
         const articles = Article.insertMany(
-            require(`${__dirname}/${tag}Data/articles.json`)
+            articlesJSON
             .map(function(obj) {
                 return {...obj,
                     created_by: getID(users, 'username', obj.created_by),
@@ -32,8 +32,9 @@ function seedDatabase (url, tag) {
         return Promise.all([users, topics, articles]);
     })
     .then(function addComments ([users, topics, articles]) {
+        //add comments based on the IDs that mongo assigns for user, topic, article
         const comments = Comment.insertMany(
-            require(`${__dirname}/${tag}Data/comments.json`)
+            commentsJSON
             .map(function (obj) {
                 return {...obj,
                     belongs_to: getID(articles, 'title', obj.belongs_to),
@@ -43,13 +44,10 @@ function seedDatabase (url, tag) {
         );
         return Promise.all([users, topics, articles, comments]);
     })
-    .then(([users, topics, articles, comments]) => {
-        return mongoose.disconnect()
-        .then(() => {
-            return {users, topics, articles, comments};
-        });
+    .then(([users, topics, articles, comments]) =>  {
+        return {users, topics, articles, comments};
     })
     .catch(err => console.error(err));
 }
 
-module.exports = seedDatabase;
+module.exports = seed;
