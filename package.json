@@ -7,9 +7,9 @@
     "test": "_mocha ./spec/spec.js",
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "seed": "node ./seed/seed.js dev"
+    "seed": "node ./seed/seed.js"
   },
-  "author": "",
+  "author": "James Wilson",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.15.2",
