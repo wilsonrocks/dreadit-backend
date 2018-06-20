@@ -16,7 +16,6 @@ function fetchAllArticles (req, res, next) {
                 return ({...datum, commentCount: count});
             });
     })
-
     .then(data => {
         return res
         .status(200)
@@ -58,13 +57,16 @@ function fetchCommentsForArticle (req, res, next) {
 }
 
 function createComment (req, res, next) {
+    
     const article = req.params._id;
+    const commentBody = req.body.comment;
+    
     Promise.all([User.findOne(), Article.findById(article)])
     .then(([user, article]) => {
         if (article === null) throw 'articleDoesNotExist';
-        if (req.body.comment === undefined) throw 'noComment';
+        if (commentBody === undefined) throw 'noComment';
         return Comment.create({
-            body: req.body.comment,
+            body: commentBody,
             belongs_to: article._id,
             created_by: user._id
         })
@@ -84,12 +86,13 @@ function createComment (req, res, next) {
 
 function changeVoting(req, res, next) {
     const article = req.params._id;
+    const {vote} = req.query;
 
     Article.findById(article)
     .then(data => {
         if (data === null) throw 'articleDoesNotExist';
 
-        const vote = req.query.vote;
+        
         if (vote === undefined) throw 'noVote';
         else if (vote === 'up') data.votes++;
         else if (vote === 'down') data.votes--;

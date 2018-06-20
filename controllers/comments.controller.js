@@ -2,13 +2,14 @@ const {Comment} = require('../models');
 const {commentFilter} = require('../helpers');
 
 function changeVoting(req, res, next) {
-    const comment = req.params._id;
-    Comment.findById(comment)
+    const {_id} = req.params;
+    const {vote} = req.query;
+    if (vote === undefined) throw 'noVote';
+
+    Comment.findById(_id)
     .then(data => {
         if (data === null) throw 'commentDoesNotExist';
-        const vote = req.query.vote;
-        if (vote === undefined) throw 'noVote';
-        else if (vote === 'up') data.votes++;
+        if (vote === 'up') data.votes++;
         else if (vote === 'down') data.votes--;
         else throw 'invalidVote'
 
@@ -19,10 +20,10 @@ function changeVoting(req, res, next) {
     })
     .catch(err => {
         if (err.name === 'CastError') return next({
-            status:400, message:`Comment id ${comment} is not valid.`
+            status:400, message:`Comment id ${_id} is not valid.`
         });
         if (err === 'commentDoesNotExist') return next({
-            status:404, message:`Comment with id ${comment} does not exist`
+            status:404, message:`Comment with id ${_id} does not exist`
         });
         if (err === 'noVote') return next({
             status: 400, message: '"vote" querystring is missing, value should be "up" or "down"'

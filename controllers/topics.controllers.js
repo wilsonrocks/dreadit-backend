@@ -11,7 +11,7 @@ function fetchAll (req, res, next) {
 }
 
 function fetchArticlesForTopic (req, res, next) {
-    const _id = req.params.id;
+    const {_id} = req.params;
     Topic.findOne({_id})
     .select()
     .then(data => {
@@ -46,11 +46,13 @@ function fetchArticlesForTopic (req, res, next) {
 
 function createArticle(req, res, next) {
 
-    const topic = req.params._id;
-    if (!req.body.title) return next({status:400, message: `Request body is missing a title field`});
-    if (!req.body.body) return next({status:400, message: `Request body is missing a title field`});
+    const {_id} = req.params;
+    const {title, body} = req.body;
 
-    Topic.findById(topic)
+    if (!title) return next({status:400, message: `Request body is missing a title field`});
+    if (!body) return next({status:400, message: `Request body is missing a title field`});
+
+    Topic.findById(_id)
     .then(data => {
         if (data === null) throw 'topicDoesNotExist';
         return User.findOne();
@@ -59,7 +61,7 @@ function createArticle(req, res, next) {
         return Article.create(
             {
                 ...req.body,
-                belongs_to: topic,
+                belongs_to: _id,
                 created_by: user._id,
             }
         );
@@ -70,12 +72,11 @@ function createArticle(req, res, next) {
         .send({created: articleFilter(data)});
     })
     .catch(err => {
-        if (err.name === 'CastError') return next({status:400, message:`Topic id ${topic} is invalid.`})
-        if (err === 'topicDoesNotExist') return next({status:404, message: `Topic with id ${topic} does not exist`});
+        if (err.name === 'CastError') return next({status:400, message:`Topic id ${_id} is invalid.`})
+        if (err === 'topicDoesNotExist') return next({status:404, message: `Topic with id ${_id} does not exist`});
         console.error(err);
         return next({status:500, message:'Something Went Wrong'});
     })
 }
-
 
 module.exports = {fetchAll, fetchArticlesForTopic, createArticle};
