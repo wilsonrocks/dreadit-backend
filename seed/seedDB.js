@@ -13,10 +13,6 @@ function seed ({userJSON, topicsJSON, articlesJSON, commentsJSON}) {
     /* uses the existing mongoose connection to drop and seed the database
     using the supplied JSON data */
 
-    if (mongoose.connection.readyState !== 1) {
-        throw new Error('Something is wrong with the mongo connection');
-    }
-
     const users = User.insertMany(userJSON); //these two don't depend on anything else
     const topics = Topic.insertMany(topicsJSON);
 

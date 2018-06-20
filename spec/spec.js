@@ -17,7 +17,14 @@ require('../env');
 describe('NorthCoders News API', function () {
 
     before(function () {
-        return mongoose.connect(process.env.MONGODB_URI);
+        return mongoose.connect(process.env.MONGODB_URI)
+        .catch(error => {
+            if (error.name === 'MongoNetworkError') {
+                console.log('Error: Could not connect to mongoDB. Is mongod running?');
+                process.exit();
+            }
+            else throw error;
+        });
     });
 
     beforeEach(function () {

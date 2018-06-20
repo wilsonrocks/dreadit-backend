@@ -1,5 +1,4 @@
 const app = require('./app');
-const constants = require('./constants.json');
 
 const PORT = process.argv[2] || process.env.PORT;
 
