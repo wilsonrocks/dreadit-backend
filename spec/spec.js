@@ -1,21 +1,23 @@
 process.env.NODE_ENV = 'test';
+
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const request = require('supertest');
 
 const seed = require('../seed/seedDB');
-const app = require('../index.js');
+const app = require('../app.js');
 const jsonData = require('../seed/testData');
 
 const articleKeys = ['_id', 'title', 'body', 'belongs_to', 'votes', 'created_by'];
 const commentKeys = ['created_at', '_id', 'body', 'belongs_to', 'created_by', 'votes'];
 const userKeys = ['_id', 'username', 'name', 'avatar_url'];
 
+require('../env');
 
 describe('NorthCoders News API', function () {
 
     before(function () {
-        return mongoose.connect('mongodb://localhost/northcoders_news_test');
+        return mongoose.connect(process.env.MONGODB_URI);
     });
 
     beforeEach(function () {
@@ -39,7 +41,7 @@ describe('NorthCoders News API', function () {
                     expect(res.type).to.equal('text/html');
                 });
         });
-    })
+    });
 
     describe('/api/topics', function () {
         describe('GET', function () {
