@@ -2,10 +2,10 @@ process.env.NODE_ENV = 'test';
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const request = require('supertest');
-const seed = require('../seed/seed');
+
+const seed = require('../seed/seedDB');
 const app = require('../index.js');
 const jsonData = require('../seed/testData');
-let seedData = 'intialized';
 
 const articleKeys = ['_id', 'title', 'body', 'belongs_to', 'votes', 'created_by'];
 const commentKeys = ['created_at', '_id', 'body', 'belongs_to', 'created_by', 'votes'];
