@@ -1,25 +1,25 @@
 const {Article, Comment, User} = require('../models');
-const {articleFilter, commentFilter} = require('../helpers');
 
 function fetchAllArticles (req, res, next) {
-    Article.find({})
-    .then(data => data.map(articleFilter))
-    .then(data => {
-        const output = data.map(datum => {
-            return Promise.all([datum, Comment.count({belongs_to: datum._id})])
+    Article
+    .find({})
+    .lean()
+    .then(articles => {
+        const output = articles.map(article => {
+            return Promise.all([article, Comment.count({belongs_to: article._id})])
         });
         return Promise.all(output);
     })
-    .then( data => {
-        return data.map(
-            ([datum, count]) => {
-                return ({...datum, commentCount: count});
+    .then(articles => {
+        return articles.map(
+            ([article, count]) => {
+                return ({...article, commentCount: count});
             });
     })
-    .then(data => {
+    .then(articles => {
         return res
         .status(200)
-        .send({articles: data});
+        .send({articles});
     })
     .catch(err => {
         console.error(err);
@@ -30,9 +30,9 @@ function fetchAllArticles (req, res, next) {
 function fetchSpecificArticle (req, res, next) {
     const {_id} = req.params;
     Article.findOne({_id})
-    .then(data => {
-        if (data === null) throw 'articleDoesNotExist';
-        res.send({article: articleFilter(data)});
+    .then(article => {
+        if (article === null) throw 'articleDoesNotExist';
+        res.send({article});
     })
     .catch(err => {
         if (err.name === 'CastError') return next({status:400, message:`Id ${_id} is not valid.`});
@@ -45,9 +45,9 @@ function fetchSpecificArticle (req, res, next) {
 function fetchCommentsForArticle (req, res, next) {
     const {_id} = req.params;
     Comment.find({belongs_to: _id})
-    .then(data => {
+    .then(comments => {
         return res.send({
-            comments: data.map(commentFilter)
+            comments: comments
         });
     })
     .catch(err => {
@@ -57,24 +57,24 @@ function fetchCommentsForArticle (req, res, next) {
 }
 
 function createComment (req, res, next) {
-    
+
     const article = req.params._id;
-    const commentBody = req.body.comment;
-    
-    Promise.all([User.findOne(), Article.findById(article)])
+    const body = req.body.comment;
+
+    Promise.all([User.findOne(), Article.findById(article)]) //random user to create comment
     .then(([user, article]) => {
         if (article === null) throw 'articleDoesNotExist';
-        if (commentBody === undefined) throw 'noComment';
+        if (body === undefined) throw 'noComment';
         return Comment.create({
-            body: commentBody,
+            body,
             belongs_to: article._id,
             created_by: user._id
         })
     })
-    .then(data =>
+    .then(created =>
         res
         .status(201)
-        .send({created: commentFilter(data)}))
+        .send({created}))
     .catch(err => {
         if (err.name === 'CastError') return next({status:400, message: `Article id ${article} is invalid`});
         if (err === 'articleDoesNotExist') return next({status: 404, message: `There is no article with id ${article}.`});
@@ -89,19 +89,18 @@ function changeVoting(req, res, next) {
     const {vote} = req.query;
 
     Article.findById(article)
-    .then(data => {
-        if (data === null) throw 'articleDoesNotExist';
-
-        
+    .then(article => {
+        if (article === null) throw 'articleDoesNotExist';
         if (vote === undefined) throw 'noVote';
-        else if (vote === 'up') data.votes++;
-        else if (vote === 'down') data.votes--;
+
+        else if (vote === 'up') article.votes++;
+        else if (vote === 'down') article.votes--;
         else throw 'invalidVote'
 
-        return data.save();
+        return article.save();
     })
-    .then(data => {
-        return res.send({article: articleFilter(data)})
+    .then(article => {
+        return res.send({article})
     })
     .catch(err => {
         if (err.name === 'CastError') return next({
@@ -129,4 +128,3 @@ module.exports = {
     createComment,
     changeVoting,
 };
-
