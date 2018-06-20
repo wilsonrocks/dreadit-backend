@@ -1,11 +1,10 @@
 process.env.NODE_ENV = 'test';
-const {MONGO_URL} = require('../config');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const request = require('supertest');
 const seed = require('../seed/seed');
 const app = require('../index.js');
-
+const jsonData = require('../seed/testData');
 let seedData = 'intialized';
 
 const articleKeys = ['_id', 'title', 'body', 'belongs_to', 'votes', 'created_by'];
@@ -15,17 +14,18 @@ const userKeys = ['_id', 'username', 'name', 'avatar_url'];
 
 describe('NorthCoders News API', function () {
 
+    before(function () {
+        return mongoose.connect('mongodb://localhost/northcoders_news_test');
+    });
+
     beforeEach(function () {
-        return seed(MONGO_URL, 'test')
-        .then(data => {
-            seedData = data;
-        })
-        .then(()=>{
-            return mongoose.connect(MONGO_URL)
+        return seed(jsonData)
+        .then(output => {
+            seedData = output
         });
     });
     
-    afterEach(function () {
+    after(function () {
         return mongoose.disconnect();
     });
 
@@ -44,6 +44,7 @@ describe('NorthCoders News API', function () {
     describe('/api/topics', function () {
         describe('GET', function () {
             it('Returns all the topics', function () {
+                
                 const seedTopics = seedData.topics;
                 return request(app)
                 .get('/api/topics')

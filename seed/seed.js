@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const {Article, Topic, User, Comment} = require('../models');
 
 function getID (collection, key, value) {
@@ -9,15 +11,17 @@ function getID (collection, key, value) {
 
 function seed ({userJSON, topicsJSON, articlesJSON, commentsJSON}) {
 
-    if (require('mongoose').connection.readyState !== 1) {
+    if (mongoose.connection.readyState !== 1) {
         throw new Error('Something is wrong with the mongo connection');
     }
 
     const users = User.insertMany(userJSON); //these two don't depend on anything else
     const topics = Topic.insertMany(topicsJSON);
 
-
-    return Promise.all([users, topics])
+    return mongoose.connection.dropDatabase()
+    .then(() => {
+        return Promise.all([users, topics])
+    })
     //add articles based on the ids that mongo assigns for the relevant user and topic
     .then(function addArticles ([users, topics]) {
         const articles = Article.insertMany(
