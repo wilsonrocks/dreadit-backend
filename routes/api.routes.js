@@ -1,7 +1,8 @@
 const router = require('express').Router();
+const {resolve} = require('path');
 
 router.get('', function (req, res, next) {
-    return res.sendFile('./doc.html', {root:__dirname});
+    return res.sendFile(resolve('public/doc.html'));
 });
 
 router.use('/users', require('./users.routes'));
