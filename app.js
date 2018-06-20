@@ -1,13 +1,15 @@
 const app = require('express')();
 const mongoose = require('mongoose');
-const middleware = require('./middleware');
+const {logToScreen, bodyParser, jsonChecker, handleError} = require('./middleware');
 const apiRouter = require('./routes/api.routes');
 
 require('./env');
 
-app.use(middleware.logToScreen);
-app.use(middleware.bodyParser);
-app.use(middleware.jsonChecker);
+if (process.env.NODE_ENV === 'dev') app.use(logToScreen);
+//nobody will be checking the console in production
+
+app.use(bodyParser);
+app.use(jsonChecker);
 
 if (process.env.NODE_ENV !== 'test') {
     mongoose.connect(process.env.MONGODB_URI)
@@ -21,6 +23,6 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 app.use('/api', apiRouter);
-app.use(middleware.handleError);
+app.use(handleError);
 
 module.exports = app;

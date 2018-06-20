@@ -1,6 +1,4 @@
 function logToScreen (req, res, next) {
-    if (process.env.NODE_ENV === 'test') return next();
-    
     const logOutput = `${Date().toString()} ${req.method} ${req.originalUrl}`;
     console.log(logOutput);
     return next();
