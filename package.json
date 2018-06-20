@@ -2,11 +2,11 @@
   "name": "northcoders-news-api",
   "version": "1.0.0",
   "description": "Northcoders News API Sprint",
-  "main": "index.js",
+  "main": "listen.js",
   "scripts": {
     "test": "_mocha ./spec/spec.js",
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node listen.js",
+    "dev": "nodemon listen.js",
     "seed": "node ./seed/seed.js"
   },
   "author": "James Wilson",
