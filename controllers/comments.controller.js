@@ -1,5 +1,4 @@
 const {Comment} = require('../models');
-const {commentFilter} = require('../helpers');
 
 function changeVoting(req, res, next) {
     const {_id} = req.params;
@@ -7,16 +6,16 @@ function changeVoting(req, res, next) {
     if (vote === undefined) throw 'noVote';
 
     Comment.findById(_id)
-    .then(data => {
-        if (data === null) throw 'commentDoesNotExist';
-        if (vote === 'up') data.votes++;
-        else if (vote === 'down') data.votes--;
+    .then(comment => {
+        if (comment === null) throw 'commentDoesNotExist';
+        if (vote === 'up') comment.votes++;
+        else if (vote === 'down') comment.votes--;
         else throw 'invalidVote'
 
-        return data.save();
+        return comment.save();
     })
-    .then(data => {
-        return res.send({comment: commentFilter(data)})
+    .then(comment => {
+        return res.send({comment})
     })
     .catch(err => {
         if (err.name === 'CastError') return next({
@@ -39,10 +38,13 @@ function changeVoting(req, res, next) {
 
 function deleteComment (req, res, next) {
     const {_id} = req.params;
-    Comment.findByIdAndRemove(_id)
-    .then(data => {
-        if (data === null) throw 'invalidCommentId';
-        return res.send({deleted: commentFilter(data)});
+    
+    Comment
+    .findByIdAndRemove(_id)
+    .lean()
+    .then(deleted => {
+        if (deleted === null) throw 'invalidCommentId';
+        return res.send({deleted});
     })
     .catch(err => {
         if (err.name === 'CastError') return next({status:400, message: `${_id} is not a valid comment id.`});
