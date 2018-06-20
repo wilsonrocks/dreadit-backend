@@ -1,35 +1,33 @@
 const {Article, User, Comment, Topic} = require('../models');
-const {articleFilter, topicFilter} = require('../helpers');
 
 function fetchAll (req, res, next) {
-    Topic.find()
-    .then(data => {
-        return res.status(200).send(
-            {topics: data.map(topicFilter)}
-        );
+    Topic
+    .find()
+    .lean()
+    .then(topics => {
+        return res.status(200).send({topics});
     });
 }
 
 function fetchArticlesForTopic (req, res, next) {
     const {_id} = req.params;
-    Topic.findOne({_id})
-    .select()
-    .then(data => {
-        if (data === null) throw 'topicDoesNotExist';
-        return Article.find({belongs_to:_id})
+    Topic
+    .findById(_id)
+    .lean()
+    .then(topic => {
+        if (topic === null) throw 'topicDoesNotExist';
+        return Article.find({belongs_to: _id}).lean()
     })   
-    .then(data => ({articles: data.map(articleFilter)}))
-    .then(data => {
-        const counts = Promise.all(data.articles.map(d => Comment.count({_id: d._id})));
-        return Promise.all([data, counts]);
+    .then(articles => {
+        const counts = Promise.all(articles.map(d => Comment.count({_id: d._id})));
+        return Promise.all([articles, counts]);
     })
-    .then(function ([data, counts]) {
-        return data.articles.map((d, index) => {
+    .then(function ([articles, counts]) {
+        return articles.map((d, index) => {
             return {...d, commentCount:counts[index]};
         })
     })
-    .then((data) => ({articles: data}))
-    .then(data => res.send(data))
+    .then(articles => res.send({articles}))
     .catch(err => {
         if (err === 'topicDoesNotExist') {
             return next({status:404, message: `There is no topic with id ${_id} to find articles for`});
@@ -52,10 +50,12 @@ function createArticle(req, res, next) {
     if (!title) return next({status:400, message: `Request body is missing a title field`});
     if (!body) return next({status:400, message: `Request body is missing a title field`});
 
-    Topic.findById(_id)
+    Topic
+    .findById(_id)
+    .lean()
     .then(data => {
         if (data === null) throw 'topicDoesNotExist';
-        return User.findOne();
+        return User.findOne(); //creataing by a random user
     })
     .then(user => {
         return Article.create(
@@ -69,7 +69,7 @@ function createArticle(req, res, next) {
     .then(data => {
         res
         .status(201)
-        .send({created: articleFilter(data)});
+        .send({created: data});
     })
     .catch(err => {
         if (err.name === 'CastError') return next({status:400, message:`Topic id ${_id} is invalid.`})

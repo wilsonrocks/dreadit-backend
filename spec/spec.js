@@ -60,12 +60,12 @@ describe('NorthCoders News API', function () {
                 .expect(200)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('topics');
+                    expect(res.body).to.include.keys('topics');
                     expect(res.body.topics).to.be.an('array');
                     expect(res.body.topics.length).to.equal(seedTopics.length);
                     expect(res.body.topics[0]).to.be.an('object');
-                    expect(res.body.topics[0]).to.have.keys('_id', 'title', 'slug');
-                });l
+                    expect(res.body.topics[0]).to.include.keys('_id', 'title', 'slug');
+                });
             });
         });
     });
@@ -77,18 +77,17 @@ describe('NorthCoders News API', function () {
                 const testTopic = seedData.topics[articleNumber];
                 const id = testTopic._id;
                 const expectedArticles = seedData.articles.filter(x => x.belongs_to === id);
-                const firstArticle = expectedArticles[articleNumber];
 
                 return request(app)
                 .get(`/api/topics/${id}/articles`)
                 .expect(200)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('articles');
+                    expect(res.body).to.include.keys('articles');
                     expect(res.body.articles).to.be.an('array');
                     expect(res.body.articles.length).to.equal(expectedArticles.length);
                     const returnedArticle = res.body.articles[articleNumber];
-                    expect(returnedArticle).to.have.keys(...articleKeys, 'commentCount');
+                    expect(returnedArticle).to.include.keys(...articleKeys, 'commentCount');
                     expect(returnedArticle.commentCount).to.be.a('number');
                     expect(returnedArticle.commentCount).to
                         .equal(seedData.comments
@@ -102,7 +101,7 @@ describe('NorthCoders News API', function () {
                 .then(res => {
                     expect(res.status).to.equal(400);
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
                 });
             });
@@ -112,7 +111,7 @@ describe('NorthCoders News API', function () {
                 .expect(404)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                 });
             });
         });
@@ -126,10 +125,10 @@ describe('NorthCoders News API', function () {
                 .expect(201)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('created');
+                    expect(res.body).to.include.keys('created');
                     const created = res.body.created;
                     expect(created).to.be.an('object');
-                    expect(created).to.have.keys(articleKeys);
+                    expect(created).to.include.keys(articleKeys);
                     expect(created.votes).to.equal(0);
                     expect(created.belongs_to).to.equal(`${topic}`);
                 });
@@ -141,7 +140,7 @@ describe('NorthCoders News API', function () {
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
                 });
             });
@@ -152,7 +151,7 @@ describe('NorthCoders News API', function () {
                 .expect(404)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(404);
                 })
             });
@@ -182,12 +181,12 @@ describe('NorthCoders News API', function () {
                 .expect(200)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('articles');
+                    expect(res.body).to.include.keys('articles');
                     expect(res.body.articles).to.be.an('array');
                     expect(res.body.articles).to.have.length(4);
                     const articleNumber = 2;
                     const requestedArticle = res.body.articles[articleNumber];
-                    expect(requestedArticle).to.have.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to', 'commentCount');
+                    expect(requestedArticle).to.include.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to', 'commentCount');
                     expect(requestedArticle.commentCount).to.be.a('number');
                     expect(requestedArticle.commentCount).to
                     .equal(seedData.comments.filter(x => x.belongs_to === seedData.articles[articleNumber]._id).length);
@@ -206,9 +205,9 @@ describe('NorthCoders News API', function () {
                 .then(id => request(app).get(`/api/articles/${id}`))
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('article');
+                    expect(res.body).to.include.keys('article');
                     expect(res.body.article).to.be.an('object');
-                    expect(res.body.article).to.have.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to');
+                    expect(res.body.article).to.include.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to');
                 });
             });
             it('returns a 400 if the id is invalid', function () {
@@ -217,7 +216,7 @@ describe('NorthCoders News API', function () {
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
                 });
             });
@@ -227,7 +226,7 @@ describe('NorthCoders News API', function () {
                 .expect(404)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(404);
                 });
             });
@@ -242,9 +241,9 @@ describe('NorthCoders News API', function () {
                 .expect(200)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('article');
+                    expect(res.body).to.include.keys('article');
                     expect(res.body.article).to.be.an('object');
-                    expect(res.body.article).to.have.keys(articleKeys);
+                    expect(res.body.article).to.include.keys(articleKeys);
                     expect(res.body.article.votes).to.equal(votesBefore + 1);
                 });
             });
@@ -257,9 +256,9 @@ describe('NorthCoders News API', function () {
                 .expect(200)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('article');
+                    expect(res.body).to.include.keys('article');
                     expect(res.body.article).to.be.an('object');
-                    expect(res.body.article).to.have.keys(articleKeys);
+                    expect(res.body.article).to.include.keys(articleKeys);
                     expect(res.body.article.votes).to.equal(votesBefore - 1);
                 });
             });
@@ -270,7 +269,7 @@ describe('NorthCoders News API', function () {
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
                 });
             });
@@ -281,7 +280,7 @@ describe('NorthCoders News API', function () {
                 .expect(404)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(404);
                 });
             });
@@ -292,7 +291,7 @@ describe('NorthCoders News API', function () {
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
                 });
             });
@@ -304,7 +303,7 @@ describe('NorthCoders News API', function () {
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
                 });
             });
@@ -322,10 +321,10 @@ describe('NorthCoders News API', function () {
                 .expect(200)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('comments');
+                    expect(res.body).to.include.keys('comments');
                     expect(res.body.comments).to.be.an('array');
                     expect(res.body.comments.length).to.equal(expectedComments.length);
-                    expect(res.body.comments[0]).to.have.keys(commentKeys);
+                    expect(res.body.comments[0]).to.include.keys(commentKeys);
                     expect(res.body.comments[0].belongs_to).to.equal(`${article}`);
                 });
             });
@@ -341,10 +340,10 @@ describe('NorthCoders News API', function () {
                 .expect(201)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('created');
+                    expect(res.body).to.include.keys('created');
                     const created = res.body.created;
                     expect(created).to.be.an('object');
-                    expect(created).to.have.keys(commentKeys);
+                    expect(created).to.include.keys(commentKeys);
                 });
             });
             it('returns 400 if the article id is invalid', function () {
@@ -354,7 +353,7 @@ describe('NorthCoders News API', function () {
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
                 });
             });
@@ -365,7 +364,7 @@ describe('NorthCoders News API', function () {
                 .expect(404)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(404);
                 });
             });
@@ -389,9 +388,9 @@ describe('NorthCoders News API', function () {
                 .expect(200)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('comment');
+                    expect(res.body).to.include.keys('comment');
                     expect(res.body.comment).to.be.an('object');
-                    expect(res.body.comment).to.have.keys(commentKeys);
+                    expect(res.body.comment).to.include.keys(commentKeys);
                     expect(res.body.comment.votes).to.equal(votesBefore + 1);
                 });
             });
@@ -404,9 +403,9 @@ describe('NorthCoders News API', function () {
                 .expect(200)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('comment');
+                    expect(res.body).to.include.keys('comment');
                     expect(res.body.comment).to.be.an('object');
-                    expect(res.body.comment).to.have.keys(commentKeys);
+                    expect(res.body.comment).to.include.keys(commentKeys);
                     expect(res.body.comment.votes).to.equal(votesBefore - 1);
                 });
             });
@@ -417,7 +416,7 @@ describe('NorthCoders News API', function () {
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
                 });
             });
@@ -428,7 +427,7 @@ describe('NorthCoders News API', function () {
                 .expect(404)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(404);
                 });
             });
@@ -439,7 +438,7 @@ describe('NorthCoders News API', function () {
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
                 });
             });
@@ -451,7 +450,7 @@ describe('NorthCoders News API', function () {
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
                 });
             });
@@ -464,8 +463,8 @@ describe('NorthCoders News API', function () {
                 .expect(200)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('deleted');
-                    expect(res.body.deleted).to.have.keys(commentKeys);
+                    expect(res.body).to.include.keys('deleted');
+                    expect(res.body.deleted).to.include.keys(commentKeys);
                     expect(res.body.deleted._id).to.equal(comment);
                     return request(app)
                     .get(`/api/comments/${comment}`)
@@ -479,7 +478,7 @@ describe('NorthCoders News API', function () {
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(400);
                 });
             });
@@ -489,7 +488,7 @@ describe('NorthCoders News API', function () {
                 .expect(404)
                 .then(res => {
                     expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.keys('status', 'message');
+                    expect(res.body).to.include.keys('status', 'message');
                     expect(res.body.status).to.equal(404);
                 });
             });
@@ -504,9 +503,9 @@ describe('NorthCoders News API', function () {
             .expect(200)
             .then(res => {
                 expect(res.body).to.be.an('object');
-                expect(res.body).to.have.keys('user');
+                expect(res.body).to.include.keys('user');
                 expect(res.body.user).to.be.an('object');
-                expect(res.body.user).to.have.keys(userKeys);
+                expect(res.body.user).to.include.keys(userKeys);
                 expect(res.body.user._id).to.equal(`${_id}`);
             });
         });
