@@ -58,9 +58,9 @@ Please see `/public/doc.html` or make a GET request to the `/api` endpoint.
 
 ## Deployment
 
-If the `MONGODB_URI` environment variable is set, the app will use that. Otherwise, it will use the default dev URL found in `constants.json`.
+If the `MONGODB_URI` environment variable is set, the app will use that. Otherwise, it will use the default dev URL found in `constants.js`.
 
-The `PORT` environment variable will be used, if it exists. Otherwise, you can specify a port on the command line `npm start 8000`. If you don't do this, the default port set in `constants.json` will be used.
+The `PORT` environment variable will be used, if it exists. Otherwise, you can specify a port on the command line `npm start 8000`. If you don't do this, the default port set in `constants.js` will be used.
 
 If you want to seed the deployed version, you will have to run `npm run seed` in the deployment environment.
 
