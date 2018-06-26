@@ -105,7 +105,7 @@ describe('NorthCoders News API', function () {
                     expect(res.body.status).to.equal(400);
                 });
             });
-            it('Returns a 400 if id is valid but the topic is not in the database', function () {
+            it('Returns a 404 if id is valid but the topic is not in the database', function () {
                 return request(app)
                 .get('/api/topics/eeeeeeeeeeeeeeeeeeeeeeee/articles')
                 .expect(404)

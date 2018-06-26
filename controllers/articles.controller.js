@@ -11,15 +11,13 @@ function fetchAllArticles (req, res, next) {
         return Promise.all(output);
     })
     .then(articles => {
-        return articles.map(
+        const output = articles.map(
             ([article, count]) => {
                 return ({...article, commentCount: count});
             });
-    })
-    .then(articles => {
         return res
-        .status(200)
-        .send({articles});
+            .status(200)
+            .send({articles: output})
     })
     .catch(next);
 }

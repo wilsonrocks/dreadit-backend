@@ -12,40 +12,51 @@ function fetchAll (req, res, next) {
 
 function fetchArticlesForTopic (req, res, next) {
     const {_id} = req.params;
-    Topic
-    .findById(_id)
-    .lean()
+
+    Topic.findById(_id)
+
     .then(topic => {
-        if (topic === null) throw 'topicDoesNotExist';
-        return Article.find({belongs_to: _id}).lean()
-    })   
+        if (topic === null) throw new Error('topicDoesNotExist');
+
+        return Article
+            .find({belongs_to: _id})
+            .lean();
+    })
+
     .then(articles => {
-        const counts = Promise.all(articles.map(d => Comment.count({_id: d._id})));
+
+        const counts = Promise.all(articles.map(article => Comment.count({_id: article._id})));
         return Promise.all([articles, counts]);
+
     })
+
     .then(function ([articles, counts]) {
-        return articles.map((d, index) => {
-            return {...d, commentCount:counts[index]};
-        })
 
+        const output = articles.map((article, index) => {
+            return {...article, commentCount:counts[index]};
+        });
+
+        res.send({articles: output});
     })
-    .then(articles => res.send({articles}))
-    .catch(err => {
 
-        if (err === 'topicDoesNotExist') {
-            return res
-                .status(404)
-                .send({
-                    status:404,
-                    message: `There is no topic with id ${_id} to find articles for`});
-        }
+    .catch(err => {
 
         if (err.name === 'CastError') {
             return res
                 .status(400)
                 .send({
                     status:400,
-                    message: `Invalid id ${_id} for topic`});
+                    message: `Invalid id ${_id} for topic`
+                });
+        }
+
+        if (err.message === 'topicDoesNotExist') {
+            return res
+                .status(404)
+                .send({
+                    status:404,
+                    message: `There is no topic with id ${_id} to find articles for`
+                });
         }
 
         else next(err);
@@ -65,7 +76,7 @@ function createArticle(req, res, next) {
     .lean()
     .then(data => {
         if (data === null) throw 'topicDoesNotExist';
-        return User.findOne(); //creataing by a random user
+        return User.findOne(); //creating by a random user
     })
     .then(user => {
         return Article.create(
