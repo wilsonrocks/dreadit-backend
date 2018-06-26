@@ -9,13 +9,16 @@ function fetchUser (req, res, next) {
     .then(user => {
         if (user === null) throw 'userDoesNotExist';
         res
-        .status(200)
-        .send({user})
+            .status(200)
+            .send({user});
     })
     .catch(err => {
-        if (err = 'userDoesNotExist') return next({status: 404, message: `User with username ${username} does not exist.`});
-        console.error(err);
-        return next({status:500, message:'Something Went Wrong'});
+        if (err = 'userDoesNotExist') return res
+            .status(404)
+            .send({
+                status: 404,
+                message: `User with username ${username} does not exist.`});
+        return next(err);
     });
 }
 

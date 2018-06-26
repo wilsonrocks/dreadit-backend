@@ -4,14 +4,6 @@ function logToScreen (req, res, next) {
     return next();
 }
 
-function handleError (errorObj, req, res, next) {
-    if (errorObj.status) {
-        return res.status(errorObj.status)
-        .send(errorObj);
-    }
-    else next();
-}
-
 function jsonChecker (err, req, res, next) {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
         res.send({status:400, message:'Bad JSON'});
@@ -22,4 +14,4 @@ function jsonChecker (err, req, res, next) {
 
 const bodyParser = require('body-parser').json();
 
-module.exports = {logToScreen, handleError, bodyParser, jsonChecker};
+module.exports = {logToScreen, bodyParser, jsonChecker};

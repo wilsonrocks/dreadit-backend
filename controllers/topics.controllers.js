@@ -6,7 +6,8 @@ function fetchAll (req, res, next) {
     .lean()
     .then(topics => {
         return res.status(200).send({topics});
-    });
+    })
+    .catch(next);
 }
 
 function fetchArticlesForTopic (req, res, next) {
@@ -26,19 +27,28 @@ function fetchArticlesForTopic (req, res, next) {
         return articles.map((d, index) => {
             return {...d, commentCount:counts[index]};
         })
+
     })
     .then(articles => res.send({articles}))
     .catch(err => {
+
         if (err === 'topicDoesNotExist') {
-            return next({status:404, message: `There is no topic with id ${_id} to find articles for`});
+            return res
+                .status(404)
+                .send({
+                    status:404,
+                    message: `There is no topic with id ${_id} to find articles for`});
         }
 
         if (err.name === 'CastError') {
-            return next({status:400, message: `Invalid id ${_id} for topic`})
+            return res
+                .status(400)
+                .send({
+                    status:400,
+                    message: `Invalid id ${_id} for topic`});
         }
 
-        console.error(err);
-        return next({status:500, message:'Something Went Wrong!'});
+        else next(err);
     });
 }
 
@@ -72,10 +82,15 @@ function createArticle(req, res, next) {
         .send({created: data});
     })
     .catch(err => {
-        if (err.name === 'CastError') return next({status:400, message:`Topic id ${_id} is invalid.`})
-        if (err === 'topicDoesNotExist') return next({status:404, message: `Topic with id ${_id} does not exist`});
-        console.error(err);
-        return next({status:500, message:'Something Went Wrong'});
+        if (err.name === 'CastError') return res
+            .status(400)
+            .send({
+                status:400,
+                message:`Topic id ${_id} is invalid.`});
+        if (err === 'topicDoesNotExist') return res
+            .status(404)
+            .send({status:404, message: `Topic with id ${_id} does not exist`});
+        return next(err);
     })
 }
 

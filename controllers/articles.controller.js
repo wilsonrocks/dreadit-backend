@@ -21,10 +21,7 @@ function fetchAllArticles (req, res, next) {
         .status(200)
         .send({articles});
     })
-    .catch(err => {
-        console.error(err);
-        return next({status:500, message:'Something went wrong!'});
-    })
+    .catch(next);
 }
 
 function fetchSpecificArticle (req, res, next) {
@@ -35,10 +32,17 @@ function fetchSpecificArticle (req, res, next) {
         res.send({article});
     })
     .catch(err => {
-        if (err.name === 'CastError') return next({status:400, message:`Id ${_id} is not valid.`});
-        if (err === 'articleDoesNotExist') return next({status:404, message:`Article with id ${_id} does not exist`});
-        console.error(err);
-        return next({status:500, message:'Something went wrong!'});
+        if (err.name === 'CastError') return res
+            .status(400)
+            .send({
+                status:400,
+                message:`Id ${_id} is not valid.`});
+        if (err === 'articleDoesNotExist') return res
+            .status(404)
+            .send({
+                status:404,
+                message:`Article with id ${_id} does not exist`});
+        return next(err);
     });
 }
 
@@ -50,10 +54,7 @@ function fetchCommentsForArticle (req, res, next) {
             comments: comments
         });
     })
-    .catch(err => {
-        console.error(err)
-        return next({status:500, message:'Something went wrong!'});
-    });
+    .catch(next);
 }
 
 function createComment (req, res, next) {
@@ -76,11 +77,24 @@ function createComment (req, res, next) {
         .status(201)
         .send({created}))
     .catch(err => {
-        if (err.name === 'CastError') return next({status:400, message: `Article id ${article} is invalid`});
-        if (err === 'articleDoesNotExist') return next({status: 404, message: `There is no article with id ${article}.`});
-        if (err === 'noComment') return next({status: 400, message: 'The request body must contain a comment field'});
-        console.error(err)
-        return next({status:500, message:'Something went wrong!'});
+        if (err.name === 'CastError') return res
+            .status(400)
+            .send({
+                status:400,
+                message: `Article id ${article} is invalid`});
+
+        if (err === 'articleDoesNotExist') return res
+        .status(404)
+        .send({
+                status: 404,
+                message: `There is no article with id ${article}.`});
+
+        if (err === 'noComment') return res
+        .status(400)
+        .send({
+            status: 400,
+            message: 'The request body must contain a comment field'});
+        return next(err);
     });
 }
 
@@ -103,21 +117,31 @@ function changeVoting(req, res, next) {
         return res.send({article})
     })
     .catch(err => {
-        if (err.name === 'CastError') return next({
-            status:400, message:`Article id ${article} is not valid.`
-        });
-        if (err === 'articleDoesNotExist') return next({
-            status:404, message:`Article with id ${article} does not exist`
-        });
-        if (err === 'noVote') return next({
-            status: 400, message: '"vote" querystring is missing, value should be "up" or "down"'
-        });
-        if (err === 'invalidVote') return next({
-            status:400, message:`"vote" querystring value ${req.query.vote} is invalid - must be "up" or "down"`
-        });
+        if (err.name === 'CastError') return res
+            .status(400)
+            .send({
+                status:400,
+                message:`Article id ${article} is not valid.`});
 
-        console.error(err)
-        return next({status:500, message:'Something Went Wrong'});
+        if (err === 'articleDoesNotExist') return res
+        .status(404)
+        .send({
+            status:404,
+            message:`Article with id ${article} does not exist`});
+
+        if (err === 'noVote') return res
+            .status(400)
+            .send({
+                status: 400,
+                message: '"vote" querystring is missing, value should be "up" or "down"'});
+
+        if (err === 'invalidVote') return res
+        .status(400)
+        .send({
+            status:400,
+            message:`"vote" querystring value ${req.query.vote} is invalid - must be "up" or "down"`});
+
+        return next(err);
     });
 }
 
