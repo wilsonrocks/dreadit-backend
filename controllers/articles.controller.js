@@ -100,45 +100,38 @@ function createComment (req, res, next) {
 function changeVoting(req, res, next) {
     const article = req.params._id;
     const {vote} = req.query;
+    if (vote === undefined) return res
+        .status(400)
+        .send({
+            status: 400,
+            message: '"vote" querystring is missing, value should be "up" or "down"'
+        });
 
     Article.findById(article)
+    .lean()
     .then(article => {
         if (article === null) throw 'articleDoesNotExist';
-        if (vote === undefined) throw 'noVote';
-
-        else if (vote === 'up') article.votes++;
-        else if (vote === 'down') article.votes--;
-        else throw 'invalidVote'
-
-        return article.save();
+        const votesDelta = {up: 1, down: -1}[vote] || 0;
+        return Article.findByIdAndUpdate(
+            article._id,
+            {votes: article.votes + votesDelta},
+            {new: true}
+        );
     })
-    .then(article => {
-        return res.send({article})
-    })
+    .then(article => res.status(200).send({article}))
     .catch(err => {
         if (err.name === 'CastError') return res
             .status(400)
             .send({
                 status:400,
-                message:`Article id ${article} is not valid.`});
+                message:`Article id ${article} is not valid.`
+            });
 
         if (err === 'articleDoesNotExist') return res
         .status(404)
         .send({
             status:404,
             message:`Article with id ${article} does not exist`});
-
-        if (err === 'noVote') return res
-            .status(400)
-            .send({
-                status: 400,
-                message: '"vote" querystring is missing, value should be "up" or "down"'});
-
-        if (err === 'invalidVote') return res
-        .status(400)
-        .send({
-            status:400,
-            message:`"vote" querystring value ${req.query.vote} is invalid - must be "up" or "down"`});
 
         return next(err);
     });
