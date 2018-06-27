@@ -2,10 +2,12 @@ process.env.NODE_ENV = 'test';
 
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
-const request = require('supertest');
+
+const app = require('../app.js');
+const request = require('supertest')(app);
 
 const seed = require('../seed/seedDB');
-const app = require('../app.js');
+
 const jsonData = require('../seed/testData');
 
 const articleKeys = ['_id', 'title', 'body', 'belongs_to', 'votes', 'created_by'];
@@ -41,11 +43,11 @@ describe('NorthCoders News API', function () {
     describe('/api', function () {
 
         it('GET returns an HTML page with the documented endpoints', function () {
-            return request(app)
+            return request
                 .get('/api')
                 .expect(200)
-                .then(res => {
-                    expect(res.type).to.equal('text/html');
+                .then(({type}) => {
+                    expect(type).to.equal('text/html');
                 });
         });
     });
@@ -54,16 +56,14 @@ describe('NorthCoders News API', function () {
         describe('GET', function () {
             it('Returns all the topics', function () {
                 const seedTopics = seedData.topics;
-                return request(app)
+                return request
                 .get('/api/topics')
                 .expect(200)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('topics');
-                    expect(body.topics).to.be.an('array');
-                    expect(body.topics.length).to.equal(seedTopics.length);
-                    expect(body.topics[0]).to.be.an('object');
-                    expect(body.topics[0]).to.include.keys('_id', 'title', 'slug');
+                .then(({body: {topics}}) => {
+                    expect(topics).to.be.an('array');
+                    expect(topics.length).to.equal(seedTopics.length);
+                    expect(topics[0]).to.be.an('object');
+                    expect(topics[0]).to.include.keys('_id', 'title', 'slug');
                 });
             });
         });
@@ -77,7 +77,7 @@ describe('NorthCoders News API', function () {
                 const id = testTopic._id;
                 const expectedArticles = seedData.articles.filter(x => x.belongs_to === id);
 
-                return request(app)
+                return request
                 .get(`/api/topics/${id}/articles`)
                 .expect(200)
                 .then(({body}) => {
@@ -97,7 +97,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('Returns a 400 if id is not valid', function () {
-                return request(app)
+                return request
                 .get('/api/topics/eeeee/articles')
                 .expect(400)
                 .then(({body}) => {
@@ -107,7 +107,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('Returns a 404 if id is valid but the topic is not in the database', function () {
-                return request(app)
+                return request
                 .get('/api/topics/eeeeeeeeeeeeeeeeeeeeeeee/articles')
                 .expect(404)
                 .then(({body}) => {
@@ -120,7 +120,7 @@ describe('NorthCoders News API', function () {
             const testArticle = {title:'#nolivesmatter', body:'Ice-T really is very good, isn\'t he?'};
             it('creates a new article', function () {
                 const topic = seedData.topics[0]._id;
-                return request(app)
+                return request
                 .post(`/api/topics/${topic}/articles`)
                 .send(testArticle)
                 .expect(201)
@@ -135,7 +135,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns a 400 if the topic is not valid', function () {
-                return request(app)
+                return request
                 .post('/api/topics/FAKER/articles')
                 .send(testArticle)
                 .expect(400)
@@ -146,7 +146,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns a 404 if the topic is valid but not there', function () {
-                return request(app)
+                return request
                 .post('/api/topics/eeeeeeeeeeeeeeeeeeeeeeee/articles')
                 .send(testArticle)
                 .expect(404)
@@ -158,14 +158,14 @@ describe('NorthCoders News API', function () {
             });
             it('returns a 400 if the title field is missing in the body', function () {
                 const topic = seedData.topics[0]._id;
-                return request(app)
+                return request
                 .post(`/api/topics/${topic}/articles`)
                 .send({body: 'what?'})
                 .expect(400);
             });
             it('returns a 400 if the body field is missing in the body', function () {
                 const topic = seedData.topics[0]._id;
-                return request(app)
+                return request
                 .post(`/api/topics/${topic}/articles`)
                 .send({title: 'what?'})
                 .expect(400);
@@ -176,7 +176,7 @@ describe('NorthCoders News API', function () {
     describe('/api/articles', function () {
         describe('GET', function () {
             it('fetches all the articles', function () {
-                return request(app)
+                return request
                 .get('/api/articles')
                 .expect(200)
                 .then(({body}) => {
@@ -199,11 +199,11 @@ describe('NorthCoders News API', function () {
     describe('/api/articles/:_id', function () {
         describe('GET', function () {
             it('fetches the specific article', function () {
-                return request(app)
+                return request
                 .get('/api/articles')
                 .expect(200)
                 .then(res => res.body.articles[0]._id)
-                .then(id => request(app).get(`/api/articles/${id}`))
+                .then(id => request.get(`/api/articles/${id}`))
                 .then(({body}) => {
                     expect(body).to.be.an('object');
                     expect(body).to.include.keys('article');
@@ -212,7 +212,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns a 400 if the id is invalid', function () {
-                return request(app)
+                return request
                 .get('/api/articles/NOTANID')
                 .expect(400)
                 .then(({body}) => {
@@ -222,7 +222,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns a 404 if the id is valid but not present', function () {
-                return request(app)
+                return request
                 .get('/api/articles/eeeeeeeeeeeeeeeeeeeeeeee')
                 .expect(404)
                 .then(({body}) => {
@@ -236,7 +236,7 @@ describe('NorthCoders News API', function () {
             it('increments a vote count if passed "up"', function () {
                 const article = seedData.articles[0];
                 const votesBefore = article.votes;
-                return request(app)
+                return request
                 .put(`/api/articles/${article._id}`)
                 .query({vote:'up'})
                 .expect(200)
@@ -251,7 +251,7 @@ describe('NorthCoders News API', function () {
             it('increments a vote count if passed "down"', function () {
                 const article = seedData.articles[0];
                 const votesBefore = article.votes;
-                return request(app)
+                return request
                 .put(`/api/articles/${article._id}`)
                 .query({vote:'down'})
                 .expect(200)
@@ -266,7 +266,7 @@ describe('NorthCoders News API', function () {
             it('leaves the vote count alone if not passed "up" or "down"', function () {
                 const article = seedData.articles[0];
                 const votesBefore = article.votes;
-                return request(app)
+                return request
                 .put(`/api/articles/${article._id}`)
                 .query({vote:'brap'})
                 .expect(200)
@@ -279,7 +279,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns 400 if the article id is invalid', function () {
-                return request(app)
+                return request
                 .put('/api/articles/FAKE')
                 .query({vote:'up'})
                 .expect(400)
@@ -290,7 +290,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns 404 if the article id is valid but not in the database', function () {
-                return request(app)
+                return request
                 .put('/api/articles/eeeeeeeeeeeeeeeeeeeeeeee')
                 .query({vote:'up'})
                 .expect(404)
@@ -302,7 +302,7 @@ describe('NorthCoders News API', function () {
             });
             it('returns 400 if the vote query string is missing', function () {
                 const article = seedData.articles[0];
-                return request(app)
+                return request
                 .put(`/api/articles/${article._id}`)
                 .expect(400)
                 .then(({body}) => {
@@ -319,7 +319,7 @@ describe('NorthCoders News API', function () {
             it('returns all comments for the selected article', function () {
                 const article = seedData.articles[0]._id;
                 const expectedComments = seedData.comments.filter(comment => comment.belongs_to === article._id);
-                return request(app)
+                return request
                 .get(`/api/articles/${article}/comments`)
                 .expect(200)
                 .then(({body}) => {
@@ -339,7 +339,7 @@ describe('NorthCoders News API', function () {
             const testComment = {comment: 'bro do you even lift?'};
             it('creates and returns a new comment', function () {
                 const article = seedData.articles[0]._id;
-                return request(app)
+                return request
                 .post(`/api/articles/${article}/comments`)
                 .send(testComment)
                 .expect(201)
@@ -353,7 +353,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns 400 if the article id is invalid', function () {
-                return request(app)
+                return request
                 .post('/api/articles/FAKED/comments')
                 .send(testComment)
                 .expect(400)
@@ -364,7 +364,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns 404 if the article id valid but not present', function () {
-                return request(app)
+                return request
                 .post('/api/articles/eeeeeeeeeeeeeeeeeeeeeeee/comments')
                 .send(testComment)
                 .expect(404)
@@ -376,7 +376,7 @@ describe('NorthCoders News API', function () {
             });
             it('returns 400 if the comment text is missing', function () {
                 const article = seedData.articles[0]._id;
-                return request(app)
+                return request
                 .post(`/api/articles/${article}/comments`)
                 .expect(400);
             });
@@ -388,7 +388,7 @@ describe('NorthCoders News API', function () {
             it('increments a vote count if passed "up"', function () {
                 const comment = seedData.comments[0];
                 const votesBefore = comment.votes;
-                return request(app)
+                return request
                 .put(`/api/comments/${comment._id}`)
                 .query({vote:'up'})
                 .expect(200)
@@ -405,7 +405,7 @@ describe('NorthCoders News API', function () {
             it('increments a vote count if passed "down"', function () {
                 const comment = seedData.comments[0];
                 const votesBefore = comment.votes;
-                return request(app)
+                return request
                 .put(`/api/comments/${comment._id}`)
                 .query({vote:'down'})
                 .expect(200)
@@ -422,7 +422,7 @@ describe('NorthCoders News API', function () {
             it('leaves the vote count alone if not passed "up" or "down"', function () {
                 const comment = seedData.comments[0];
                 const votesBefore = comment.votes;
-                return request(app)
+                return request
                 .put(`/api/comments/${comment._id}`)
                 .query({vote:'brap'})
                 .expect(200)
@@ -437,7 +437,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns 400 if the comment id is invalid', function () {
-                return request(app)
+                return request
                 .put('/api/comments/FAKE')
                 .query({vote:'up'})
                 .expect(400)
@@ -448,7 +448,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns 404 if the comment id is valid but not in the database', function () {
-                return request(app)
+                return request
                 .put('/api/comments/eeeeeeeeeeeeeeeeeeeeeeee')
                 .query({vote:'up'})
                 .expect(404)
@@ -460,7 +460,7 @@ describe('NorthCoders News API', function () {
             });
             it('returns 400 if the vote query string is missing', function () {
                 const comment = seedData.articles[0];
-                return request(app)
+                return request
                 .put(`/api/articles/${comment._id}`)
                 .expect(400)
                 .then(({body}) => {
@@ -473,7 +473,7 @@ describe('NorthCoders News API', function () {
         describe('DELETE', function () {
             it('deletes the item', function () {
                 const comment = `${seedData.comments[0]._id}`;
-                return request(app)
+                return request
                 .delete(`/api/comments/${comment}`)
                 .expect(200)
                 .then(({body}) => {
@@ -481,14 +481,14 @@ describe('NorthCoders News API', function () {
                     expect(body).to.include.keys('deleted');
                     expect(body.deleted).to.include.keys(commentKeys);
                     expect(body.deleted._id).to.equal(comment);
-                    return request(app)
+                    return request
                     .get(`/api/comments/${comment}`)
                     .expect(404);
                 });
             });
             it('returns a 400 if the id is invalid', function () {
                 const comment = `${seedData.comments[0]._id}`;
-                return request(app)
+                return request
                 .delete(`/api/comments/fakerfakefake`)
                 .expect(400)
                 .then(({body}) => {
@@ -498,7 +498,7 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns a 404 if the id is valid but does not exist', function () {
-                return request(app)
+                return request
                 .delete('/api/comments/eeeeeeeeeeeeeeeeeeeeeeee')
                 .expect(404)
                 .then(({body}) => {
@@ -513,7 +513,7 @@ describe('NorthCoders News API', function () {
     describe('/api/users/:username', function () {
         it('returns the information for the specified user', function () {
             const {_id, username} = seedData.users[0];
-            return request(app)
+            return request
             .get(`/api/users/${username}`)
             .expect(200)
             .then(({body}) => {
@@ -527,7 +527,7 @@ describe('NorthCoders News API', function () {
             });
         });
         it('returns a 404 if the username does not exist', function () {
-            return request(app)
+            return request
             .get('/api/users/mydyingbride')
             .expect(404);
         });
