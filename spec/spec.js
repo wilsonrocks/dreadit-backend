@@ -80,13 +80,11 @@ describe('NorthCoders News API', function () {
                 return request
                 .get(`/api/topics/${id}/articles`)
                 .expect(200)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('articles');
-                    expect(body.articles).to.be.an('array');
-                    expect(body.articles.length).to.equal(expectedArticles.length);
+                .then(({body: {articles}}) => {
+                    expect(articles).to.be.an('array');
+                    expect(articles.length).to.equal(expectedArticles.length);
 
-                    const returnedArticle = body.articles[articleNumber];
+                    const returnedArticle = articles[articleNumber];
 
                     expect(returnedArticle).to.include.keys(...articleKeys, 'commentCount');
                     expect(returnedArticle.commentCount).to.be.a('number');
@@ -100,19 +98,19 @@ describe('NorthCoders News API', function () {
                 return request
                 .get('/api/topics/eeeee/articles')
                 .expect(400)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(400);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
+
                 });
             });
             it('Returns a 404 if id is valid but the topic is not in the database', function () {
                 return request
                 .get('/api/topics/eeeeeeeeeeeeeeeeeeeeeeee/articles')
                 .expect(404)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(404);
+                    expect(message).to.be.a('string');
                 });
             });
         });
@@ -124,10 +122,7 @@ describe('NorthCoders News API', function () {
                 .post(`/api/topics/${topic}/articles`)
                 .send(testArticle)
                 .expect(201)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('created');
-                    const created = body.created;
+                .then(({body: {created}}) => {
                     expect(created).to.be.an('object');
                     expect(created).to.include.keys(articleKeys);
                     expect(created.votes).to.equal(0);
@@ -139,10 +134,9 @@ describe('NorthCoders News API', function () {
                 .post('/api/topics/FAKER/articles')
                 .send(testArticle)
                 .expect(400)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(400);
+                .then(({body :{status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
                 });
             });
             it('returns a 404 if the topic is valid but not there', function () {
@@ -150,10 +144,9 @@ describe('NorthCoders News API', function () {
                 .post('/api/topics/eeeeeeeeeeeeeeeeeeeeeeee/articles')
                 .send(testArticle)
                 .expect(404)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(404);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(404);
+                    expect(message).to.be.a('string');
                 })
             });
             it('returns a 400 if the title field is missing in the body', function () {
@@ -179,14 +172,12 @@ describe('NorthCoders News API', function () {
                 return request
                 .get('/api/articles')
                 .expect(200)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('articles');
-                    expect(body.articles).to.be.an('array');
-                    expect(body.articles).to.have.length(4);
+                .then(({body: {articles}}) => {
+                    expect(articles).to.be.an('array');
+                    expect(articles).to.have.length(4);
 
                     const articleNumber = 2;
-                    const requestedArticle = body.articles[articleNumber];
+                    const requestedArticle = articles[articleNumber];
                     expect(requestedArticle).to.include.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to', 'commentCount');
                     expect(requestedArticle.commentCount).to.be.a('number');
                     expect(requestedArticle.commentCount).to
@@ -204,31 +195,27 @@ describe('NorthCoders News API', function () {
                 .expect(200)
                 .then(res => res.body.articles[0]._id)
                 .then(id => request.get(`/api/articles/${id}`))
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('article');
-                    expect(body.article).to.be.an('object');
-                    expect(body.article).to.include.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to');
+                .then(({body: {article}}) => {
+                    expect(article).to.be.an('object');
+                    expect(article).to.include.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to');
                 });
             });
             it('returns a 400 if the id is invalid', function () {
                 return request
                 .get('/api/articles/NOTANID')
                 .expect(400)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(400);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
                 });
             });
             it('returns a 404 if the id is valid but not present', function () {
                 return request
                 .get('/api/articles/eeeeeeeeeeeeeeeeeeeeeeee')
                 .expect(404)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(404);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(404);
+                    expect(message).to.be.a('string');
                 });
             });
         });
@@ -240,12 +227,10 @@ describe('NorthCoders News API', function () {
                 .put(`/api/articles/${article._id}`)
                 .query({vote:'up'})
                 .expect(200)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('article');
-                    expect(body.article).to.be.an('object');
-                    expect(body.article).to.include.keys(articleKeys);
-                    expect(body.article.votes).to.equal(votesBefore + 1);
+                .then(({body: {article}}) => {
+                    expect(article).to.be.an('object');
+                    expect(article).to.include.keys(articleKeys);
+                    expect(article.votes).to.equal(votesBefore + 1);
                 });
             });
             it('increments a vote count if passed "down"', function () {
@@ -255,12 +240,10 @@ describe('NorthCoders News API', function () {
                 .put(`/api/articles/${article._id}`)
                 .query({vote:'down'})
                 .expect(200)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('article');
-                    expect(body.article).to.be.an('object');
-                    expect(body.article).to.include.keys(articleKeys);
-                    expect(body.article.votes).to.equal(votesBefore - 1);
+                .then(({body: {article}}) => {
+                    expect(article).to.be.an('object');
+                    expect(article).to.include.keys(articleKeys);
+                    expect(article.votes).to.equal(votesBefore - 1);
                 });
             });
             it('leaves the vote count alone if not passed "up" or "down"', function () {
@@ -270,12 +253,10 @@ describe('NorthCoders News API', function () {
                 .put(`/api/articles/${article._id}`)
                 .query({vote:'brap'})
                 .expect(200)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('article');
-                    expect(body.article).to.be.an('object');
-                    expect(body.article).to.include.keys(articleKeys);
-                    expect(body.article.votes).to.equal(votesBefore);
+                .then(({body: {article}}) => {
+                    expect(article).to.be.an('object');
+                    expect(article).to.include.keys(articleKeys);
+                    expect(article.votes).to.equal(votesBefore);
                 });
             });
             it('returns 400 if the article id is invalid', function () {
@@ -283,10 +264,9 @@ describe('NorthCoders News API', function () {
                 .put('/api/articles/FAKE')
                 .query({vote:'up'})
                 .expect(400)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(400);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
                 });
             });
             it('returns 404 if the article id is valid but not in the database', function () {
@@ -294,10 +274,9 @@ describe('NorthCoders News API', function () {
                 .put('/api/articles/eeeeeeeeeeeeeeeeeeeeeeee')
                 .query({vote:'up'})
                 .expect(404)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(404);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(404);
+                    expect(message).to.be.a('string');
                 });
             });
             it('returns 400 if the vote query string is missing', function () {
@@ -305,10 +284,10 @@ describe('NorthCoders News API', function () {
                 return request
                 .put(`/api/articles/${article._id}`)
                 .expect(400)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(400);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
+
                 });
             });
         });
@@ -322,11 +301,7 @@ describe('NorthCoders News API', function () {
                 return request
                 .get(`/api/articles/${article}/comments`)
                 .expect(200)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('comments');
-
-                    const comments = body.comments;
+                .then(({body: {comments}}) => {
                     expect(comments).to.be.an('array');
                     expect(comments.length).to.equal(expectedComments.length);
                     expect(comments[0]).to.include.keys(commentKeys);
@@ -343,11 +318,7 @@ describe('NorthCoders News API', function () {
                 .post(`/api/articles/${article}/comments`)
                 .send(testComment)
                 .expect(201)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('created');
-
-                    const created = body.created;
+                .then(({body: {created}}) => {
                     expect(created).to.be.an('object');
                     expect(created).to.include.keys(commentKeys);
                 });
@@ -357,10 +328,9 @@ describe('NorthCoders News API', function () {
                 .post('/api/articles/FAKED/comments')
                 .send(testComment)
                 .expect(400)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(400);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
                 });
             });
             it('returns 404 if the article id valid but not present', function () {
@@ -368,10 +338,9 @@ describe('NorthCoders News API', function () {
                 .post('/api/articles/eeeeeeeeeeeeeeeeeeeeeeee/comments')
                 .send(testComment)
                 .expect(404)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(404);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(404);
+                    expect(message).to.be.a('string');
                 });
             });
             it('returns 400 if the comment text is missing', function () {
@@ -392,12 +361,7 @@ describe('NorthCoders News API', function () {
                 .put(`/api/comments/${comment._id}`)
                 .query({vote:'up'})
                 .expect(200)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('comment');
-
-                    const comment = body.comment;
-                    expect(comment).to.be.an('object');
+                .then(({body: {comment}}) => {
                     expect(comment).to.include.keys(commentKeys);
                     expect(comment.votes).to.equal(votesBefore + 1);
                 });
@@ -409,11 +373,7 @@ describe('NorthCoders News API', function () {
                 .put(`/api/comments/${comment._id}`)
                 .query({vote:'down'})
                 .expect(200)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('comment');
-
-                    const comment = body.comment;
+                .then(({body: {comment}}) => {
                     expect(comment).to.be.an('object');
                     expect(comment).to.include.keys(commentKeys);
                     expect(comment.votes).to.equal(votesBefore - 1);
@@ -426,11 +386,8 @@ describe('NorthCoders News API', function () {
                 .put(`/api/comments/${comment._id}`)
                 .query({vote:'brap'})
                 .expect(200)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('comment');
-
-                    const comment = body.comment;
+                .then(({body: {comment}}) => {
+                    
                     expect(comment).to.be.an('object');
                     expect(comment).to.include.keys(commentKeys);
                     expect(comment.votes).to.equal(votesBefore);
@@ -441,33 +398,28 @@ describe('NorthCoders News API', function () {
                 .put('/api/comments/FAKE')
                 .query({vote:'up'})
                 .expect(400)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(400);
-                });
             });
             it('returns 404 if the comment id is valid but not in the database', function () {
                 return request
                 .put('/api/comments/eeeeeeeeeeeeeeeeeeeeeeee')
                 .query({vote:'up'})
                 .expect(404)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(404);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(404);
+                    expect(message).to.be.a('string');
                 });
+
             });
             it('returns 400 if the vote query string is missing', function () {
                 const comment = seedData.articles[0];
                 return request
                 .put(`/api/articles/${comment._id}`)
                 .expect(400)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(400);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
                 });
+
             });
         });
         describe('DELETE', function () {
@@ -476,14 +428,9 @@ describe('NorthCoders News API', function () {
                 return request
                 .delete(`/api/comments/${comment}`)
                 .expect(200)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('deleted');
-                    expect(body.deleted).to.include.keys(commentKeys);
-                    expect(body.deleted._id).to.equal(comment);
-                    return request
-                    .get(`/api/comments/${comment}`)
-                    .expect(404);
+                .then(({body: {deleted}}) => {
+                    expect(deleted).to.include.keys(commentKeys);
+                    expect(deleted._id).to.equal(comment);
                 });
             });
             it('returns a 400 if the id is invalid', function () {
@@ -491,20 +438,19 @@ describe('NorthCoders News API', function () {
                 return request
                 .delete(`/api/comments/fakerfakefake`)
                 .expect(400)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(400);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
                 });
+
             });
             it('returns a 404 if the id is valid but does not exist', function () {
                 return request
                 .delete('/api/comments/eeeeeeeeeeeeeeeeeeeeeeee')
                 .expect(404)
-                .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.include.keys('status', 'message');
-                    expect(body.status).to.equal(404);
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(404);
+                    expect(message).to.be.a('string');
                 });
             });
         });
@@ -516,11 +462,7 @@ describe('NorthCoders News API', function () {
             return request
             .get(`/api/users/${username}`)
             .expect(200)
-            .then(({body}) => {
-                expect(body).to.be.an('object');
-                expect(body).to.include.keys('user');
-
-                const user = body.user;
+            .then(({body: {user}}) => {
                 expect(user).to.be.an('object');
                 expect(user).to.include.keys(userKeys);
                 expect(user._id).to.equal(`${_id}`);
