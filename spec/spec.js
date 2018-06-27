@@ -262,6 +262,21 @@ describe('NorthCoders News API', function () {
                     expect(res.body.article.votes).to.equal(votesBefore - 1);
                 });
             });
+            it('leaves the vote count alone if not passed "up" or "down"', function () {
+                const article = seedData.articles[0];
+                const votesBefore = article.votes;
+                return request(app)
+                .put(`/api/articles/${article._id}`)
+                .query({vote:'brap'})
+                .expect(200)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.include.keys('article');
+                    expect(res.body.article).to.be.an('object');
+                    expect(res.body.article).to.include.keys(articleKeys);
+                    expect(res.body.article.votes).to.equal(votesBefore);
+                });
+            });
             it('returns 400 if the article id is invalid', function () {
                 return request(app)
                 .put('/api/articles/FAKE')
@@ -295,19 +310,6 @@ describe('NorthCoders News API', function () {
                     expect(res.body.status).to.equal(400);
                 });
             });
-            it('returns 400 if the vote query has a value other than "up" or "down"', function () {
-                const article = seedData.articles[0];
-                return request(app)
-                .put(`/api/articles/${article._id}`)
-                .query({vote: 'yahoo!'})
-                .expect(400)
-                .then(res => {
-                    expect(res.body).to.be.an('object');
-                    expect(res.body).to.include.keys('status', 'message');
-                    expect(res.body.status).to.equal(400);
-                });
-            });
-
         });
     });
 
@@ -409,6 +411,21 @@ describe('NorthCoders News API', function () {
                     expect(res.body.comment.votes).to.equal(votesBefore - 1);
                 });
             });
+            it('leaves the vote count alone if not passed "up" or "down"', function () {
+                const comment = seedData.comments[0];
+                const votesBefore = comment.votes;
+                return request(app)
+                .put(`/api/comments/${comment._id}`)
+                .query({vote:'brap'})
+                .expect(200)
+                .then(res => {
+                    expect(res.body).to.be.an('object');
+                    expect(res.body).to.include.keys('comment');
+                    expect(res.body.comment).to.be.an('object');
+                    expect(res.body.comment).to.include.keys(commentKeys);
+                    expect(res.body.comment.votes).to.equal(votesBefore);
+                });
+            });
             it('returns 400 if the comment id is invalid', function () {
                 return request(app)
                 .put('/api/comments/FAKE')
@@ -435,18 +452,6 @@ describe('NorthCoders News API', function () {
                 const comment = seedData.articles[0];
                 return request(app)
                 .put(`/api/articles/${comment._id}`)
-                .expect(400)
-                .then(res => {
-                    expect(res.body).to.be.an('object');
-                    expect(res.body).to.include.keys('status', 'message');
-                    expect(res.body.status).to.equal(400);
-                });
-            });
-            it('returns 400 if the vote query has a value other than "up" or "down"', function () {
-                const article = seedData.comments[0];
-                return request(app)
-                .put(`/api/comments/${article._id}`)
-                .query({vote: 'yahoo!'})
                 .expect(400)
                 .then(res => {
                     expect(res.body).to.be.an('object');

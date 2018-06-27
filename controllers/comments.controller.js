@@ -6,19 +6,20 @@ function changeVoting(req, res, next) {
     if (vote === undefined) throw 'noVote';
 
     Comment.findById(_id)
+    .lean()
     .then(comment => {
         if (comment === null) throw 'commentDoesNotExist';
-        if (vote === 'up') comment.votes++;
-        else if (vote === 'down') comment.votes--;
-        else throw 'invalidVote'
-
-        return comment.save();
+        const votesDelta = {up: 1, down: -1}[vote] || 0;
+        return Comment.findByIdAndUpdate(
+            comment._id,
+            {votes: comment.votes + votesDelta},
+            {new: true}
+        );
     })
     .then(comment => {
         return res.send({comment})
     })
     .catch(err => {
-
         if (err.name === 'CastError') return res
         .status(400)
         .send({
