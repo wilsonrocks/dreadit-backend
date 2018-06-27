@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>NorthCoders News API</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
 </head>
 <body>
 
@@ -12,8 +17,8 @@
     All endpoints return an object with a single key with the information nested as the value.
     <h2>/api/users</h2>
         Fields returned for this endpoint: '_id', 'name', 'username', 'avatar_url'.
-        <h3>GET /api/users/:username</h3>
-            Returns information about the user given by <em>username</em>.
+        <h3>GET /api/users/:_id</h3>
+            Returns information about the user with the given <em>_id</em>.
 
     <h2>/api/topics</h2>
         Fields returned for this endpoint: '_id', 'title', 'slug'.

@@ -1,10 +1,10 @@
 const {User} = require('../models');
 
 function fetchUser (req, res, next) {
-    const {username} = req.params;
+    const {_id} = req.params;
     
     User
-    .findOne({username})
+    .findOne({_id})
     .lean()
     .then(user => {
         if (user === null) throw new Error('userDoesNotExist');
@@ -17,7 +17,7 @@ function fetchUser (req, res, next) {
             .status(404)
             .send({
                 status: 404,
-                message: `User with username ${username} does not exist.`});
+                message: `User with id ${_id} does not exist.`});
         return next(err);
     });
 }

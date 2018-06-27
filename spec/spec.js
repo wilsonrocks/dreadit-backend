@@ -458,9 +458,9 @@ describe('NorthCoders News API', function () {
 
     describe('/api/users/:username', function () {
         it('returns the information for the specified user', function () {
-            const {_id, username} = seedData.users[0];
+            const {_id} = seedData.users[0];
             return request
-            .get(`/api/users/${username}`)
+            .get(`/api/users/${_id}`)
             .expect(200)
             .then(({body: {user}}) => {
                 expect(user).to.be.an('object');
