@@ -3,12 +3,12 @@ const {Comment} = require('../models');
 function changeVoting(req, res, next) {
     const {_id} = req.params;
     const {vote} = req.query;
-    if (vote === undefined) throw 'noVote';
+    if (vote === undefined) throw new Error('noVote');
 
     Comment.findById(_id)
     .lean()
     .then(comment => {
-        if (comment === null) throw 'commentDoesNotExist';
+        if (comment === null) throw new Error('commentDoesNotExist');
         const votesDelta = {up: 1, down: -1}[vote] || 0;
         return Comment.findByIdAndUpdate(
             comment._id,
@@ -26,13 +26,13 @@ function changeVoting(req, res, next) {
             status:400,
             message:`Comment id ${_id} is not valid.`});
 
-        if (err === 'commentDoesNotExist') return res
+        if (err.message === 'commentDoesNotExist') return res
         .status(404)
         .send({
             status:404,
             message:`Comment with id ${_id} does not exist`});
 
-        if (err === 'noVote') return res
+        if (err.message === 'noVote') return res
             .status(400)
             .send({
                 status: 400,
@@ -55,7 +55,7 @@ function deleteComment (req, res, next) {
     .findByIdAndRemove(_id)
     .lean()
     .then(deleted => {
-        if (deleted === null) throw 'invalidCommentId';
+        if (deleted === null) throw new Error('invalidCommentId');
         return res.send({deleted});
     })
     .catch(err => {
@@ -64,7 +64,7 @@ function deleteComment (req, res, next) {
         .send({
             status:400,
             message: `${_id} is not a valid comment id.`});
-        if (err === 'invalidCommentId') return res
+        if (err.message === 'invalidCommentId') return res
         .status(404)
         .send({
             status:404,

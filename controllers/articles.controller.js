@@ -26,7 +26,7 @@ function fetchSpecificArticle (req, res, next) {
     const {_id} = req.params;
     Article.findOne({_id})
     .then(article => {
-        if (article === null) throw 'articleDoesNotExist';
+        if (article === null) throw new Error('articleDoesNotExist');
         res.send({article});
     })
     .catch(err => {
@@ -35,7 +35,7 @@ function fetchSpecificArticle (req, res, next) {
             .send({
                 status:400,
                 message:`Id ${_id} is not valid.`});
-        if (err === 'articleDoesNotExist') return res
+        if (err.message === 'articleDoesNotExist') return res
             .status(404)
             .send({
                 status:404,
@@ -69,7 +69,7 @@ function createComment (req, res, next) {
 
     Promise.all([User.findOne(), Article.findById(article)]) //random user to create comment
     .then(([user, article]) => {
-        if (article === null) throw 'articleDoesNotExist';
+        if (article === null) throw new Error('articleDoesNotExist');
         return Comment.create({
             body,
             belongs_to: article._id,
@@ -87,7 +87,7 @@ function createComment (req, res, next) {
                 status:400,
                 message: `Article id ${article} is invalid`});
 
-        if (err === 'articleDoesNotExist') return res
+        if (err.message === 'articleDoesNotExist') return res
         .status(404)
         .send({
                 status: 404,
@@ -110,7 +110,7 @@ function changeVoting(req, res, next) {
     Article.findById(article)
     .lean()
     .then(article => {
-        if (article === null) throw 'articleDoesNotExist';
+        if (article === null) throw new Error('articleDoesNotExist');
         const votesDelta = {up: 1, down: -1}[vote] || 0;
         return Article.findByIdAndUpdate(
             article._id,
@@ -127,7 +127,7 @@ function changeVoting(req, res, next) {
                 message:`Article id ${article} is not valid.`
             });
 
-        if (err === 'articleDoesNotExist') return res
+        if (err.message === 'articleDoesNotExist') return res
         .status(404)
         .send({
             status:404,

@@ -75,7 +75,7 @@ function createArticle(req, res, next) {
     .findById(_id)
     .lean()
     .then(data => {
-        if (data === null) throw 'topicDoesNotExist';
+        if (data === null) throw new Error('topicDoesNotExist');
         return User.findOne(); //creating by a random user
     })
     .then(user => {
@@ -98,7 +98,7 @@ function createArticle(req, res, next) {
             .send({
                 status:400,
                 message:`Topic id ${_id} is invalid.`});
-        if (err === 'topicDoesNotExist') return res
+        if (err.message === 'topicDoesNotExist') return res
             .status(404)
             .send({status:404, message: `Topic with id ${_id} does not exist`});
         return next(err);

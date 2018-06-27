@@ -7,13 +7,13 @@ function fetchUser (req, res, next) {
     .findOne({username})
     .lean()
     .then(user => {
-        if (user === null) throw 'userDoesNotExist';
+        if (user === null) throw new Error('userDoesNotExist');
         res
             .status(200)
             .send({user});
     })
     .catch(err => {
-        if (err = 'userDoesNotExist') return res
+        if (err.message === 'userDoesNotExist') return res
             .status(404)
             .send({
                 status: 404,
