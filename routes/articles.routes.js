@@ -1,4 +1,4 @@
-const app = require('express').Router();
+const router = require('express').Router();
 
 const {
     fetchAllArticles,
@@ -8,11 +8,16 @@ const {
     changeVoting,
 } = require('../controllers/articles.controller');
 
-app.get('', fetchAllArticles);
-app.get('/:_id', fetchSpecificArticle);
-app.get('/:_id/comments', fetchCommentsForArticle);
-app.post('/:_id/comments', createComment);
-app.put('/:_id', changeVoting);
+router.get('', fetchAllArticles);
+router
+    .route('/:_id')
+    .get(fetchSpecificArticle)
+    .put(changeVoting);
+
+router
+    .route('/:_id/comments')
+    .get(fetchCommentsForArticle)
+    .post(createComment);
 
 
-module.exports = app;
+module.exports = router;

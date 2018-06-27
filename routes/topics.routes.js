@@ -1,9 +1,10 @@
-const app = require('express').Router();
+const router = require('express').Router();
 const {fetchAll, fetchArticlesForTopic, createArticle} = require('../controllers/topics.controllers');
 
-app.get('', fetchAll);
-app.get('/:_id/articles', fetchArticlesForTopic);
-app.post('/:_id/articles', createArticle);
+router.get('', fetchAll);
+router.route('/:_id/articles')
+    .get(fetchArticlesForTopic)
+    .post(createArticle);
 
 
-module.exports = app;
+module.exports = router;
