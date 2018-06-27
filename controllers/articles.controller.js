@@ -59,11 +59,17 @@ function createComment (req, res, next) {
 
     const article = req.params._id;
     const body = req.body.comment;
+    if (body === undefined) return res
+        .status(400)
+        .send({
+            status: 400,
+            message: 'The request body must contain a comment field'
+        });
+
 
     Promise.all([User.findOne(), Article.findById(article)]) //random user to create comment
     .then(([user, article]) => {
         if (article === null) throw 'articleDoesNotExist';
-        if (body === undefined) throw 'noComment';
         return Comment.create({
             body,
             belongs_to: article._id,
@@ -86,13 +92,8 @@ function createComment (req, res, next) {
         .send({
                 status: 404,
                 message: `There is no article with id ${article}.`});
-
-        if (err === 'noComment') return res
-        .status(400)
-        .send({
-            status: 400,
-            message: 'The request body must contain a comment field'});
         return next(err);
+
     });
 }
 
