@@ -1,4 +1,5 @@
 const app = require('express')();
+app.use(require('cors')());
 const mongoose = require('mongoose');
 const {logToScreen, bodyParser, jsonChecker, handleError} = require('./middleware');
 const apiRouter = require('./routes/api.routes');
