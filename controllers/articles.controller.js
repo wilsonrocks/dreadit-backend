@@ -59,12 +59,21 @@ function createComment (req, res, next) {
 
     const article = req.params._id;
     const body = req.body.comment;
+
     if (body === undefined) return res
         .status(400)
         .send({
             status: 400,
             message: 'The request body must contain a comment field'
         });
+
+    if (body === '') return res
+        .status(400)
+        .send({
+            status: 400,
+            message: 'The comment cannot be blank'
+        });
+    
 
 
     Promise.all([User.findOne(), Article.findById(article)]) //random user to create comment

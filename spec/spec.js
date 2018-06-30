@@ -343,11 +343,33 @@ describe('NorthCoders News API', function () {
                     expect(message).to.be.a('string');
                 });
             });
-            it('returns 400 if the comment text is missing', function () {
+            it('returns 400 if the body is missing', function () {
                 const article = seedData.articles[0]._id;
                 return request
                 .post(`/api/articles/${article}/comments`)
                 .expect(400);
+            });
+            it('returns a 400 if the comment in the body is an empty string', function () {
+                const article = seedData.articles[0]._id;
+                return request
+                .post(`/api/articles/${article}/comments`)
+                .send({comment:''})
+                .expect(400)
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
+                });
+            });
+            it('returns a 400 if the body doesn\'t contain a comment key', function () {
+                const article = seedData.articles[0]._id;
+                return request
+                .post(`/api/articles/${article}/comments`)
+                .send({blah:'blah'})
+                .expect(400)
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
+                });
             });
         });
     });
