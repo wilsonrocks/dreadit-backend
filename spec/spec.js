@@ -317,6 +317,24 @@ describe('NorthCoders News API', function () {
                     expect(comments[0].belongs_to).to.equal(`${article}`);
                 });
             });
+            it('returns a 404 if the article id is valid but does not exist', function () {
+                return request
+                .get('/api/articles/bbbbbbbbbbbbbbbbbbbbbbbb/comments')
+                .expect(404)
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(404);
+                    expect(message).to.be.a('string');
+                });
+            });
+            it('returns a 400 if the article id is invalid', function () {
+                return request
+                .get('/api/articles/notavalidID/comments')
+                .expect(400)
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
+                });
+            });
         });
 
         describe('POST', function () {
@@ -499,7 +517,7 @@ describe('NorthCoders News API', function () {
                 expect(user._id).to.equal(`${_id}`);
             });
         });
-        it('returns a 404 if the username is valid but does not exist', function () {
+        it('returns a 404 if the user id is valid but does not exist', function () {
             return request
             .get('/api/users/bbbbbbbbbbbbbbbbbbbbbbbb')
             .expect(404)
@@ -508,7 +526,7 @@ describe('NorthCoders News API', function () {
                 expect(message).to.be.a('string');
             });
         });
-        it('returns a 400 if the username is invalid', function () {
+        it('returns a 400 if the user id is invalid', function () {
             return request
             .get('/api/users/notavalidID')
             .expect(400)

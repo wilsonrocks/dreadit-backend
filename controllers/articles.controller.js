@@ -48,13 +48,34 @@ function fetchSpecificArticle (req, res, next) {
 
 function fetchCommentsForArticle (req, res, next) {
     const {_id} = req.params;
-    Comment.find({belongs_to: _id})
+    Article.findById(_id)
+    .then(article => {
+        if (article === null) throw new Error('articleNotFound');
+        return Comment.find({belongs_to: _id})
+    })
     .then(comments => {
         return res.send({
             comments: comments
         });
     })
-    .catch(next);
+    .catch(err => {
+
+        if (err.message === 'articleNotFound') return res 
+            .status(404)
+            .send({
+                status:404,
+                message: `${_id} is a valid article ID but does not exist`,
+            });
+        
+        if (err.name === 'CastError') return res
+            .status(400)
+            .send({
+                status:400,
+                message: `${_id} is not a valid article ID`,
+            });
+
+            next(err);
+    });
 }
 
 function createComment (req, res, next) {
