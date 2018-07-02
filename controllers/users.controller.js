@@ -4,7 +4,7 @@ function fetchUser (req, res, next) {
     const {_id} = req.params;
     
     User
-    .findOne({_id})
+    .findById(_id)
     .lean()
     .then(user => {
         if (user === null) throw new Error('userDoesNotExist');
@@ -13,6 +13,12 @@ function fetchUser (req, res, next) {
             .send({user});
     })
     .catch(err => {
+        if (err.name === 'CastError') return res
+            .status(400)
+            .send({
+                status: 400,
+                message: `${_id} is not a valid ID`,
+            });
         if (err.message === 'userDoesNotExist') return res
             .status(404)
             .send({

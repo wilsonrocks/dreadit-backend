@@ -499,10 +499,23 @@ describe('NorthCoders News API', function () {
                 expect(user._id).to.equal(`${_id}`);
             });
         });
-        it('returns a 404 if the username does not exist', function () {
+        it('returns a 404 if the username is valid but does not exist', function () {
             return request
-            .get('/api/users/mydyingbride')
-            .expect(404);
+            .get('/api/users/bbbbbbbbbbbbbbbbbbbbbbbb')
+            .expect(404)
+            .then(({body: {status, message}}) => {
+                expect(status).to.equal(404);
+                expect(message).to.be.a('string');
+            });
+        });
+        it('returns a 400 if the username is invalid', function () {
+            return request
+            .get('/api/users/notavalidID')
+            .expect(400)
+            .then(({body: {status, message}}) => {
+                expect(status).to.equal(400);
+                expect(message).to.be.a('string');
+            });
         });
     });
 });
