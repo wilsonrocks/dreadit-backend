@@ -3,6 +3,7 @@ const {Article, Comment, User} = require('../models');
 function fetchAllArticles (req, res, next) {
     Article
     .find({})
+    .populate('created_by')
     .lean()
     .then(articles => {
         const output = articles.map(article => {
@@ -25,6 +26,7 @@ function fetchAllArticles (req, res, next) {
 function fetchSpecificArticle (req, res, next) {
     const {_id} = req.params;
     Article.findOne({_id})
+    .populate('created_by')
     .then(article => {
         if (article === null) throw new Error('articleDoesNotExist');
         res.send({article});

@@ -72,6 +72,7 @@ describe('NorthCoders News API', function () {
     describe('/api/topics/:_id/articles', function () {
         describe('GET', function () {
             it('returns all the articles when the id is valid and present', function () {
+
                 const articleNumber = 1;
                 const testTopic = seedData.topics[articleNumber];
                 const id = testTopic._id;
@@ -84,6 +85,7 @@ describe('NorthCoders News API', function () {
                     expect(articles).to.be.an('array');
                     expect(articles.length).to.equal(expectedArticles.length);
 
+
                     const returnedArticle = articles[articleNumber];
 
                     expect(returnedArticle).to.include.keys(...articleKeys, 'commentCount');
@@ -92,6 +94,7 @@ describe('NorthCoders News API', function () {
                         .equal(seedData.comments
                             .filter(comment => comment.belongs_to === returnedArticle._id).length);
                     expect(returnedArticle.belongs_to).to.equal(`${testTopic._id}`);
+                    expect(returnedArticle.created_by).to.include.keys('name', 'avatar_url');
                 });
             });
             it('Returns a 400 if id is not valid', function () {
@@ -127,6 +130,8 @@ describe('NorthCoders News API', function () {
                     expect(created).to.include.keys(articleKeys);
                     expect(created.votes).to.equal(0);
                     expect(created.belongs_to).to.equal(`${topic}`);
+                    expect(created.created_by).to.include.keys('name', 'avatar_url');
+
                 });
             });
             it('returns a 400 if the topic is not valid', function () {
@@ -179,6 +184,8 @@ describe('NorthCoders News API', function () {
                     const articleNumber = 2;
                     const requestedArticle = articles[articleNumber];
                     expect(requestedArticle).to.include.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to', 'commentCount');
+                    expect(requestedArticle.created_by).to.include.keys('name', 'avatar_url');
+
                     expect(requestedArticle.commentCount).to.be.a('number');
                     expect(requestedArticle.commentCount).to
                     .equal(seedData.comments.filter(x => x.belongs_to === seedData.articles[articleNumber]._id).length);
@@ -198,6 +205,8 @@ describe('NorthCoders News API', function () {
                 .then(({body: {article}}) => {
                     expect(article).to.be.an('object');
                     expect(article).to.include.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to');
+                    expect(article.created_by).to.include.keys('name', 'avatar_url');
+
                 });
             });
             it('returns a 400 if the id is invalid', function () {
