@@ -21,6 +21,7 @@ function fetchArticlesForTopic (req, res, next) {
         return Article
             .find({belongs_to: _id})
             .populate('created_by')
+            .populate('belongs_to')
             .lean();
     })
 
@@ -87,7 +88,7 @@ function createArticle(req, res, next) {
                 created_by: user._id,
             }
         )
-        .then(article => article.populate('created_by').execPopulate())
+        .then(article => article.populate('created_by').populate('belongs_to').execPopulate())
     })
     .then(data => {
         res

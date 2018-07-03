@@ -93,8 +93,9 @@ describe('NorthCoders News API', function () {
                     expect(returnedArticle.commentCount).to
                         .equal(seedData.comments
                             .filter(comment => comment.belongs_to === returnedArticle._id).length);
-                    expect(returnedArticle.belongs_to).to.equal(`${testTopic._id}`);
+                    expect(returnedArticle.belongs_to).to.include.key('title');
                     expect(returnedArticle.created_by).to.include.keys('name', 'avatar_url');
+
                 });
             });
             it('Returns a 400 if id is not valid', function () {
@@ -129,7 +130,7 @@ describe('NorthCoders News API', function () {
                     expect(created).to.be.an('object');
                     expect(created).to.include.keys(articleKeys);
                     expect(created.votes).to.equal(0);
-                    expect(created.belongs_to).to.equal(`${topic}`);
+                    expect(created.belongs_to).to.include.key('title');
                     expect(created.created_by).to.include.keys('name', 'avatar_url');
 
                 });
@@ -183,12 +184,12 @@ describe('NorthCoders News API', function () {
 
                     const articleNumber = 2;
                     const requestedArticle = articles[articleNumber];
-                    expect(requestedArticle).to.include.keys('_id', 'votes', 'title', 'created_by', 'body', 'belongs_to', 'commentCount');
+                    expect(requestedArticle).to.include.keys(articleKeys);
                     expect(requestedArticle.created_by).to.include.keys('name', 'avatar_url');
-
+                    expect(requestedArticle.belongs_to).to.include.key('title');
                     expect(requestedArticle.commentCount).to.be.a('number');
                     expect(requestedArticle.commentCount).to
-                    .equal(seedData.comments.filter(x => x.belongs_to === seedData.articles[articleNumber]._id).length);
+                    .equal(seedData.comments.filter(x => x.belongs_to._id === seedData.articles[articleNumber]._id).length);
                 });
             });
         });
