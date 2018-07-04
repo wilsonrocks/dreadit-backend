@@ -506,34 +506,52 @@ describe('NorthCoders News API', function () {
         });
     });
 
+    describe('/api/users', function () {
+        describe('GET', function () {
+            it('returns information for all the users', function () {
+                return request
+                .get('/api/users')
+                .expect(200)
+                .then(({body:{users}}) => {
+                    expect(users).to.be.an('array');
+                    expect(users.length).to.equal(seedData.users.length);
+                    expect(users[0]).to.include.keys(userKeys);
+                });
+
+            });
+        });
+    });
+
     describe('/api/users/:username', function () {
-        it('returns the information for the specified user', function () {
-            const {_id} = seedData.users[0];
-            return request
-            .get(`/api/users/${_id}`)
-            .expect(200)
-            .then(({body: {user}}) => {
-                expect(user).to.be.an('object');
-                expect(user).to.include.keys(userKeys);
-                expect(user._id).to.equal(`${_id}`);
+        describe('GET', function () {
+            it('returns the information for the specified user', function () {
+                const {_id} = seedData.users[0];
+                return request
+                .get(`/api/users/${_id}`)
+                .expect(200)
+                .then(({body: {user}}) => {
+                    expect(user).to.be.an('object');
+                    expect(user).to.include.keys(userKeys);
+                    expect(user._id).to.equal(`${_id}`);
+                });
             });
-        });
-        it('returns a 404 if the user id is valid but does not exist', function () {
-            return request
-            .get('/api/users/bbbbbbbbbbbbbbbbbbbbbbbb')
-            .expect(404)
-            .then(({body: {status, message}}) => {
-                expect(status).to.equal(404);
-                expect(message).to.be.a('string');
+            it('returns a 404 if the user id is valid but does not exist', function () {
+                return request
+                .get('/api/users/bbbbbbbbbbbbbbbbbbbbbbbb')
+                .expect(404)
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(404);
+                    expect(message).to.be.a('string');
+                });
             });
-        });
-        it('returns a 400 if the user id is invalid', function () {
-            return request
-            .get('/api/users/notavalidID')
-            .expect(400)
-            .then(({body: {status, message}}) => {
-                expect(status).to.equal(400);
-                expect(message).to.be.a('string');
+            it('returns a 400 if the user id is invalid', function () {
+                return request
+                .get('/api/users/notavalidID')
+                .expect(400)
+                .then(({body: {status, message}}) => {
+                    expect(status).to.equal(400);
+                    expect(message).to.be.a('string');
+                });
             });
         });
     });

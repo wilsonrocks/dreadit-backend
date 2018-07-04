@@ -1,5 +1,17 @@
 const {User} = require('../models');
 
+function getAllUsers (req, res, next) {
+    User.find({})
+    .lean()
+    .then(users => {
+        res
+        .status(200)
+        .send({users})
+    });
+}
+
+
+
 function fetchUser (req, res, next) {
     const {_id} = req.params;
     
@@ -28,4 +40,4 @@ function fetchUser (req, res, next) {
     });
 }
 
-module.exports = {fetchUser};
+module.exports = {fetchUser, getAllUsers};
