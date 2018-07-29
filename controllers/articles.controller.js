@@ -100,9 +100,13 @@ function createComment (req, res, next) {
             message: 'The comment cannot be blank'
         });
     
+    
+    const randomUser = User.count()
+    .then(total => Math.floor(Math.random() * total))
+    .then(offset => User.findOne().skip(offset));
 
 
-    Promise.all([User.findOne(), Article.findById(article)]) //random user to create comment
+    Promise.all([randomUser, Article.findById(article)])
     .then(([user, article]) => {
         if (article === null) throw new Error('articleDoesNotExist');
         return Comment.create({
