@@ -85,7 +85,6 @@ describe('NorthCoders News API', function () {
                     expect(articles).to.be.an('array');
                     expect(articles.length).to.equal(expectedArticles.length);
 
-
                     const returnedArticle = articles[articleNumber];
 
                     expect(returnedArticle).to.include.keys(...articleKeys, 'commentCount');
@@ -105,7 +104,6 @@ describe('NorthCoders News API', function () {
                 .then(({body: {status, message}}) => {
                     expect(status).to.equal(400);
                     expect(message).to.be.a('string');
-
                 });
             });
             it('Returns a 404 if id is valid but the topic is not in the database', function () {
@@ -119,9 +117,11 @@ describe('NorthCoders News API', function () {
             });
         });
         describe('POST', function () {
-            const testArticle = {title:'#nolivesmatter', body:'Ice-T really is very good, isn\'t he?'};
             it('creates a new article', function () {
                 const topic = seedData.topics[0]._id;
+                const created_by = seedData.users[0]._id;
+                const testArticle = {title:'#nolivesmatter', body:'Ice-T really is very good, isn\'t he?', created_by};
+
                 return request
                 .post(`/api/topics/${topic}/articles`)
                 .send(testArticle)
@@ -136,6 +136,9 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns a 400 if the topic is not valid', function () {
+                const topic = seedData.topics[0]._id;
+                const created_by = seedData.users[0]._id;
+                const testArticle = {title:'#nolivesmatter', body:'Ice-T really is very good, isn\'t he?', created_by};
                 return request
                 .post('/api/topics/FAKER/articles')
                 .send(testArticle)
@@ -146,6 +149,8 @@ describe('NorthCoders News API', function () {
                 });
             });
             it('returns a 404 if the topic is valid but not there', function () {
+                const created_by = seedData.users[0]._id;
+                const testArticle = {title:'#nolivesmatter', body:'Ice-T really is very good, isn\'t he?', created_by};
                 return request
                 .post('/api/topics/eeeeeeeeeeeeeeeeeeeeeeee/articles')
                 .send(testArticle)

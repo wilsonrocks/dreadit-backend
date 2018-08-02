@@ -43,7 +43,10 @@ function fetchArticlesForUser (req, res, next) {
         return User.findById(created_by)
         .then(response => {
             if (response === null) throw new Error('userDoesNotExist');
-            else return Article.find({created_by}).lean()
+            else return Article.find({created_by})
+                .populate('created_by')
+                .populate('belongs_to')
+                .lean();
         })
         .then(articles => res.send({articles}))
         .catch(error => {

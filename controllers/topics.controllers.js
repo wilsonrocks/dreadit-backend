@@ -68,7 +68,7 @@ function fetchArticlesForTopic (req, res, next) {
 function createArticle(req, res, next) {
 
     const {_id} = req.params;
-    const {title, body} = req.body;
+    const {title, body, created_by} = req.body;
 
     if (!title) return next({status:400, message: `Request body is missing a title field`});
     if (!body) return next({status:400, message: `Request body is missing a title field`});
@@ -78,7 +78,7 @@ function createArticle(req, res, next) {
     .lean()
     .then(data => {
         if (data === null) throw new Error('topicDoesNotExist');
-        return User.findOne(); //creating by a random user
+        return User.findById(created_by);
     })
     .then(user => {
         return Article.create(
