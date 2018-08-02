@@ -555,4 +555,38 @@ describe('NorthCoders News API', function () {
             });
         });
     });
+
+    describe('/api/users/:_id/articles', function () {
+
+        it('returns a 200 and the articles if the user id is valid', function () {
+            const {_id} = seedData.users[1];
+            return request
+            .get(`/api/users/${_id}/articles`)
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles).to.be.an('array');
+                expect(articles[0]).to.include.keys(articleKeys);
+            });
+        });
+
+        it('returns a 400 if the user id is invalid', function () {
+            return request
+            .get('/api/users/notavalidID/articles')
+            .expect(400)
+            .then(({body: {status, message}}) => {
+                expect(status).to.equal(400);
+                expect(message).to.be.a('string');
+            });
+        });
+
+        it('returns a 404 if the user id is valid but does not exist', function () {
+            return request
+            .get('/api/users/bbbbbbbbbbbbbbbbbbbbbbbb/articles')
+            .expect(404)
+            .then(({body: {status, message}}) => {
+                expect(status).to.equal(404);
+                expect(message).to.be.a('string');
+            });
+        });
+    });
 });

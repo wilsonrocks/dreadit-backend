@@ -16,11 +16,13 @@
 <h1>NorthCoders News API</h1>
     All endpoints return an object with a single key with the information nested as the value.
     <h2>/api/users</h2>
-        Fields returned for this endpoint: '_id', 'name', 'username', 'avatar_url'.
+        Fields returned for user objects: '_id', 'name', 'username', 'avatar_url'.
         <h3>GET /api/users/:_id</h3>
             Returns information about the user with the given <em>_id</em>.
         <h3>GET /api/users</h3>
         Returns information about all users.
+        <h3>GET /api/users/:_id/articles</h3>
+        Returns all the articles by a given user.
 
     <h2>/api/topics</h2>
         Fields returned for this endpoint: '_id', 'title', 'slug'.
