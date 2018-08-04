@@ -18,6 +18,8 @@ require('../env');
 
 describe('NorthCoders News API', function () {
 
+    let seedData;
+
     before(function () {
         return mongoose.connect(process.env.MONGODB_URI)
         .catch(error => {
@@ -41,7 +43,6 @@ describe('NorthCoders News API', function () {
     });
 
     describe('/api', function () {
-
         it('GET returns an HTML page with the documented endpoints', function () {
             return request
                 .get('/api')
@@ -442,7 +443,7 @@ describe('NorthCoders News API', function () {
                 .query({vote:'brap'})
                 .expect(200)
                 .then(({body: {comment}}) => {
-                    
+
                     expect(comment).to.be.an('object');
                     expect(comment).to.include.keys(commentKeys);
                     expect(comment.votes).to.equal(votesBefore);
